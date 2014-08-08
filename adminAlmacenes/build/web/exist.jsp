@@ -4,6 +4,8 @@
     Author     : wence
 --%>
 
+<%@page import="java.text.DecimalFormatSymbols"%>
+<%@page import="java.text.DecimalFormat"%>
 <%@page import="java.sql.ResultSet"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="conn.*" %>
@@ -12,19 +14,22 @@
 <%java.text.DateFormat df2 = new java.text.SimpleDateFormat("yyyy-MM-dd"); %>
 <%java.text.DateFormat df3 = new java.text.SimpleDateFormat("dd/MM/yyyy"); %>
 <%
-
-   HttpSession sesion = request.getSession();
-    String usua = "ISEM",Clave="1";
+    DecimalFormat formatter = new DecimalFormat("#,###,###");
+    DecimalFormatSymbols custom = new DecimalFormatSymbols();
+    custom.setDecimalSeparator(',');
+    formatter.setDecimalFormatSymbols(custom);
+    HttpSession sesion = request.getSession();
+    String usua = "ISEM", Clave = "1";
     /*if (sesion.getAttribute("nombre") != null) {
-        usua = (String) sesion.getAttribute("nombre");
-        Clave = (String) session.getAttribute("clave");
-    } else {
-        response.sendRedirect("index.jsp");
-    }
-    if (Clave== null){
-        Clave="";
-    }*/
-    ConectionDB con = new ConectionDB();
+     usua = (String) sesion.getAttribute("nombre");
+     Clave = (String) session.getAttribute("clave");
+     } else {
+     response.sendRedirect("index.jsp");
+     }
+     if (Clave== null){
+     Clave="";
+     }*/
+    ConectionDB_SAA con = new ConectionDB_SAA();
 %>
 <html>
     <head>
@@ -39,9 +44,9 @@
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
         <!---->
         <title>Ingresos en Almac&eacute;n</title>
-        
-        
-        
+
+
+
     </head>
     <body>
         <div class="container">
@@ -64,8 +69,11 @@
                                 <ul class="dropdown-menu">
                                     <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
                                     <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
-                                    <li><a href="entregas.jsp">Entregas a Proveedores</a></li>
-                                    <li><a href="">Reporteador</a></li>
+                                    <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
+                                    <li><a href="exist.jsp">Existencias en CEDIS</a></li>
+                                    <li><a href="historialOC.jsp">Historial OC</a></li>
+                                    <li><a href="ordenesCompra.jsp">Órdenes de Compra</a></li>
+                                    <!--li><a href="rep.jsp">Reporteador</a></li>
                                     <!--li><a href="requerimiento.jsp">Carga de Requerimiento</a></li>
                                     <li class="divider"></li>
                                     <li><a href="medicamento.jsp">Catálogo de Medicamento</a></li>
@@ -112,7 +120,7 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">Existencias en CEDIS</h3>
                 </div>
-              
+
                 <div class="panel-footer">
                     <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="datosProv">
                         <thead>
@@ -121,29 +129,31 @@
                                 <td>Descripción</td>
                                 <td>Lote</td>
                                 <td>Caducidad</td>
+                                <td>Ubicacion</td>
                                 <td>Cantidad</td>
-                                
                             </tr>
                         </thead>
                         <tbody>
-                            <%                                
-                              try {
-                                 
-                                  con.conectar();
-                                  ResultSet rset = con.consulta("SELECT M.F_ClaPro,M.F_DesPro,REQ.F_CantReq FROM tb_unireq REQ INNER JOIN tb_medica M ON REQ.F_ClaPro=M.F_ClaPro WHERE F_ClaUni='"+Clave+"'");
-                                  while (rset.next()) {
+                            <%
+                                try {
+                                    con.conectar();
+                                    ResultSet rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, l.F_Ubica, l.F_Cb, SUM(F_ExiLot), u.F_DesUbi FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 GROUP BY 	l.F_ClaPro ");
+                                    while (rset.next()) {
+                                        System.out.println(rset.getString(1));
                             %>
-                            <tr class="odd gradeX">
-                                <td><small><%=rset.getString(1)%></small></td>
-                                <td><small><%=rset.getString(2)%></small></td>
-                                <td><small><%=rset.getString(3)%></small></td>
-                                                        
-                                
+                            <tr>
+                                <td><%=rset.getString(1)%></td>
+                                <td><%=rset.getString(2)%></td>
+                                <td><%=rset.getString(3)%></td>
+                                <td><%=rset.getString(4)%></td>
+                                <td><%=rset.getString(8)%></td>
+                                <td><%=formatter.format(rset.getInt(7))%></td>
                             </tr>
                             <%
                                     }
                                     con.cierraConexion();
                                 } catch (Exception e) {
+                                    System.out.println(e.getMessage());
                                 }
                             %>
                         </tbody>
@@ -173,9 +183,9 @@
 <script src="js/dataTables.bootstrap.js"></script>
 <script src="js/bootstrap-datepicker.js"></script>
 <script>
-                                                        $(document).ready(function() {
-                                                            $('#datosProv').dataTable();
-                                                        });
+    $(document).ready(function() {
+        $('#datosProv').dataTable();
+    });
 </script>
 <script>
 
@@ -208,27 +218,33 @@
 
     function valida_clave() {
         var missinginfo = "";
-        if ($("#Nombre").val()==""){missinginfo += "\n El campo Clave de la Unidad no debe de estar vacío";}                
-        if (missinginfo != ""){
+        if ($("#Nombre").val() == "") {
+            missinginfo += "\n El campo Clave de la Unidad no debe de estar vacío";
+        }
+        if (missinginfo != "") {
             missinginfo = "\n TE HA FALTADO INTRODUCIR LOS SIGUIENTES DATOS PARA ENVIAR PETICIÓN DE SOPORTE:\n" + missinginfo + "\n\n ¡INGRESA LOS DATOS FALTANTES Y TRATA OTRA VEZ!\n";
-            alert(missinginfo);            
+            alert(missinginfo);
             return false;
-        }else{            
+        } else {
             return true;
         }
     }
 
     function valida_alta() {
         var missinginfo = "";
-        if ($("#Nombre").val()==""){missinginfo += "\n El campo Clave de la Unidad no debe de estar vacío";}
-        if ($("#FecFab").val()==""){missinginfo += "\n El campo Fecha Entrega no debe de estar vacío";}        
-        if (missinginfo != ""){
+        if ($("#Nombre").val() == "") {
+            missinginfo += "\n El campo Clave de la Unidad no debe de estar vacío";
+        }
+        if ($("#FecFab").val() == "") {
+            missinginfo += "\n El campo Fecha Entrega no debe de estar vacío";
+        }
+        if (missinginfo != "") {
             missinginfo = "\n TE HA FALTADO INTRODUCIR LOS SIGUIENTES DATOS PARA ENVIAR PETICIÓN DE SOPORTE:\n" + missinginfo + "\n\n ¡INGRESA LOS DATOS FALTANTES Y TRATA OTRA VEZ!\n";
             alert(missinginfo);
-            
+
             return false;
-        }else{
-            
+        } else {
+
             return true;
         }
     }
@@ -295,10 +311,10 @@
         return false;
     }
 
-$(function() {
-    $("#FecFab").datepicker();
-    $("#FecFab").datepicker('option', {dateFormat: 'dd/mm/yy'});
-});
+    $(function() {
+        $("#FecFab").datepicker();
+        $("#FecFab").datepicker('option', {dateFormat: 'dd/mm/yy'});
+    });
 </script> 
 
 

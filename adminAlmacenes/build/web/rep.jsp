@@ -57,13 +57,23 @@
                     <div class="navbar-collapse collapse">
                         <ul class="nav navbar-nav">
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">SIE <b class="caret"></b></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Men&uacute; de Opciones <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                     <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
+                                    <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
                                     <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
-                                    <li><a href="entregas.jsp">Entregas a Proveedores</a></li>
+                                    <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
+                                    <li><a href="exist.jsp">Existencias en CEDIS</a></li>
+                                    <li><a href="historialOC.jsp">Historial OC</a></li>
+                                    <li><a href="rep.jsp">Reporteador</a></li>
+                                    <!--li><a href="requerimiento.jsp">Carga de Requerimiento</a></li>
                                     <li class="divider"></li>
-                                    <!--li><a href="http://192.168.2.170:8081/UbicacionesConsolidado" target="_blank">Ubicaciones</a></li-->
+                                    <li><a href="medicamento.jsp">Catálogo de Medicamento</a></li>
+                                    <li><a href="catalogo.jsp">Catálogo de Proveedores</a></li>
+                                    <li><a href="marcas.jsp">Catálogo de Marcas</a></li>
+                                    <li><a href="reimpresion.jsp">Reimpresión de Compras</a></li>
+                                    <li><a href="reimp_factura.jsp">Reimpresión de Facturas</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="http://192.168.2.170:8081/UbicacionesConsolidado" target="_blank">Ubicaciones</a></li-->
                                 </ul>
                             </li>
                             <!--li class="dropdown">

@@ -13,35 +13,64 @@
 <%java.text.DateFormat df3 = new java.text.SimpleDateFormat("dd/MM/yyyy"); %>
 <%
 
-   HttpSession sesion = request.getSession();
-    String usua = "ISEM",Clave="1";
-    /*if (sesion.getAttribute("nombre") != null) {
+    HttpSession sesion = request.getSession();
+    String usua = "";
+    if (sesion.getAttribute("nombre") != null) {
         usua = (String) sesion.getAttribute("nombre");
-        Clave = (String) session.getAttribute("clave");
     } else {
-        response.sendRedirect("index.jsp");
+        //response.sendRedirect("index.jsp");
     }
-    if (Clave== null){
-        Clave="";
-    }*/
-    ConectionDB con = new ConectionDB();
+    ConectionDB_SAA con = new ConectionDB_SAA();
+
+    String fol_gnkl = "", fol_remi = "", orden_compra = "", fecha = "";
+    try {
+        if (request.getParameter("accion").equals("buscar")) {
+            fol_gnkl = request.getParameter("fol_gnkl");
+            fol_remi = request.getParameter("fol_remi");
+            orden_compra = request.getParameter("orden_compra");
+            fecha = request.getParameter("fecha");
+        }
+    } catch (Exception e) {
+
+    }
+    if (fol_gnkl == null) {
+        fol_gnkl = "";
+        fol_remi = "";
+        orden_compra = "";
+        fecha = "";
+    }
+
+    String proveedor = "", fecEnt = "";
+    try {
+        proveedor = request.getParameter("Proveedor");
+    } catch (Exception e) {
+
+    }
+    if (proveedor == null) {
+        proveedor = "";
+    }
+    try {
+        fecEnt = request.getParameter("Fecha");
+        fecEnt = df2.format(df3.parse(fecEnt));
+    } catch (Exception e) {
+
+    }
+    if (fecEnt == null) {
+        fecEnt = "";
+    }
+
 %>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <!-- Estilos CSS -->
         <link href="css/bootstrap.css" rel="stylesheet">
-        <link href="css/datepicker3.css" rel="stylesheet">
         <link rel="stylesheet" href="css/cupertino/jquery-ui-1.10.3.custom.css" />
         <link href="css/navbar-fixed-top.css" rel="stylesheet">
-        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
-        <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+        <link href="css/datepicker3.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.css">
         <!---->
-        <title>Ingresos en Almac&eacute;n</title>
-        
-        
-        
+        <title>SIE Sistema de Ingreso de Entradas</title>
     </head>
     <body>
         <div class="container">
@@ -55,7 +84,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" href="indexMain.jsp">Inicio</a>
+                        <a class="navbar-brand" href="main_menu.jsp">Inicio</a>
                     </div>
                     <div class="navbar-collapse collapse">
                         <ul class="nav navbar-nav">
@@ -63,9 +92,12 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Men&uacute; de Opciones <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
+                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
                                     <li><a href="exist.jsp">Existencias en CEDIS</a></li>
-                                    <li><a href="">Reporteador</a></li>
+                                    <li><a href="historialOC.jsp">Historial OC</a></li>
+                                    <li><a href="ordenesCompra.jsp">Órdenes de Compra</a></li>
+                                    <!--li><a href="rep.jsp">Reporteador</a></li>
                                     <!--li><a href="requerimiento.jsp">Carga de Requerimiento</a></li>
                                     <li class="divider"></li>
                                     <li><a href="medicamento.jsp">Catálogo de Medicamento</a></li>
@@ -80,14 +112,13 @@
                             <!--li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">ADASU<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="captura.jsp">Captura de Insumos</a></li>
+                                    <li><a href="../captura.jsp">Captura de Insumos</a></li>
                                     <li class="divider"></li>
-                                    <li><a href="catalogo.jsp">Catálogo de Proveedores</a></li>
-                                    <li><a href="reimpresion.jsp">Reimpresión de Docs</a></li>
+                                    <li><a href="../catalogo.jsp">Catálogo de Proveedores</a></li>
+                                    <li><a href="../reimpresion.jsp">Reimpresión de Docs</a></li>
                                 </ul>
                             </li-->
-                            <%
-                                if (usua.equals("root")) {
+                            <%                                if (usua.equals("root")) {
                             %>
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Usuario<b class="caret"></b></a>
@@ -100,54 +131,103 @@
                             %>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
-                            <li><a href="indexMain.jsp"><span class="glyphicon glyphicon-user"></span> <%=usua%></a></li>
+                            <li><a href=""><span class="glyphicon glyphicon-user"></span> <%=usua%></a></li>
                             <li class="active"><a href="index.jsp"><span class="glyphicon glyphicon-log-out"></span></a></li>
                         </ul>
                     </div><!--/.nav-collapse -->
                 </div>
             </div>
-        </div>
-        <div class="container">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Ingresos en el Almac&eacute;n</h3>
-                </div>
-              
-                <div class="panel-footer">
-                    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="datosProv">
-                        <thead>
-                            <tr>
-                                <td>Clave</td>
-                                <td>Descripción</td>
-                                <td>Lote</td>
-                                <td>Caducidad</td>
-                                <td>Cantidad</td>
-                                
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <%                                
-                              try {
-                                 
-                                  con.conectar();
-                                  ResultSet rset = con.consulta("SELECT M.F_ClaPro,M.F_DesPro,REQ.F_CantReq FROM tb_unireq REQ INNER JOIN tb_medica M ON REQ.F_ClaPro=M.F_ClaPro WHERE F_ClaUni='"+Clave+"'");
-                                  while (rset.next()) {
-                            %>
-                            <tr class="odd gradeX">
-                                <td><small><%=rset.getString(1)%></small></td>
-                                <td><small><%=rset.getString(2)%></small></td>
-                                <td><small><%=rset.getString(3)%></small></td>
-                                                        
-                                
-                            </tr>
-                            <%
+
+            <div>
+                <h3>Ver Compras</h3>
+                <h4>Seleccione el folio a ver</h4>
+                <div class="row">
+                    <form action="factura.jsp" method="post">
+                        <h4 class="col-sm-2">Proveedor</h4>
+                        <div class="col-sm-5">
+                            <select class="form-control" name="Proveedor" id="Proveedor" onchange="this.form.submit();">
+                                <option value="">--Proveedor--</option>
+                                <%
+                                    try {
+                                        con.conectar();
+                                        ResultSet rset = con.consulta("select F_ClaProve, F_NomPro from tb_proveedor order by F_NomPro");
+                                        while (rset.next()) {
+                                %>
+                                <option value="<%=rset.getString(2)%>"
+                                        <%
+                                            if (proveedor.equals(rset.getString(2))) {
+                                                out.println("selected");
+                                            }
+                                        %>
+                                        ><%=rset.getString(2)%></option>
+                                <%
+                                        }
+                                        con.cierraConexion();
+                                    } catch (Exception e) {
+                                        System.out.println(e.getMessage());
                                     }
-                                    con.cierraConexion();
-                                } catch (Exception e) {
-                                }
-                            %>
-                        </tbody>
-                    </table>
+                                %>
+
+                            </select>
+                        </div>
+                        <h4 class="col-sm-1">Fecha</h4>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" data-date-format="dd/mm/yyyy" id="Fecha" name="Fecha" readonly value="<%=fecEnt%>" onchange="this.form.submit();" />
+                        </div>
+                        <a class="btn btn-primary" href="factura.jsp">Todo</a>
+                    </form>
+                </div>
+                <br />
+                <div class="panel panel-primary">
+                    <div class="panel-body">
+                        <table class="table table-bordered table-striped" id="datosCompras">
+                            <thead>
+                                <tr>
+                                    <td>No. Folio</td>
+                                    <td>Folio Remisión</td>
+                                    <td>Orden de Compra</td>
+                                    <td>Fecha</td>
+                                    <td>Usuario</td>
+                                    <td>Proveedor</td>
+                                    <td>Ver Compra</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <%
+                                    try {
+                                        con.conectar();
+                                        try {
+                                            ResultSet rset = con.consulta("SELECT F_ClaDoc, F_FolRemi, F_OrdCom, F_FecApl, F_User, F_NomPro FROM tb_compravista c where F_NomPro like '%" + proveedor + "' and F_FecApl LIKE '%" + fecEnt + "%' GROUP BY F_ClaDoc, F_NomPro;");
+                                            while (rset.next()) {
+                                %>
+                                <tr>
+
+                                    <td><%=rset.getString(1)%></td>
+                                    <td><%=rset.getString(2)%></td>
+                                    <td><%=rset.getString(3)%></td>
+                                    <td><%=df3.format(df2.parse(rset.getString(4)))%></td>
+                                    <td><%=rset.getString(5)%></td>
+                                    <td><%=rset.getString(6)%></td>
+                                    <td>
+                                        <form action="verCompra.jsp" method="post">
+                                            <input class="hidden" name="fol_gnkl" value="<%=rset.getString(1)%>">
+                                            <button class="btn btn-block btn-primary">Ver Compra</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <%
+                                            }
+                                        } catch (Exception e) {
+                                            System.out.println(e.getMessage());
+                                        }
+                                        con.cierraConexion();
+                                    } catch (Exception e) {
+                                        System.out.println(e.getMessage());
+                                    }
+                                %>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -169,134 +249,17 @@
 <script src="js/jquery-1.9.1.js"></script>
 <script src="js/bootstrap.js"></script>
 <script src="js/jquery-ui-1.10.3.custom.js"></script>
+<script src="js/bootstrap-datepicker.js"></script>
 <script src="js/jquery.dataTables.js"></script>
 <script src="js/dataTables.bootstrap.js"></script>
-<script src="js/bootstrap-datepicker.js"></script>
 <script>
-                                                        $(document).ready(function() {
-                                                            $('#datosProv').dataTable();
-                                                        });
+                                $(document).ready(function() {
+                                    $('#datosCompras').dataTable();
+                                });
 </script>
 <script>
-
-
-    function isNumberKey(evt, obj)
-    {
-        var charCode = (evt.which) ? evt.which : event.keyCode;
-        if (charCode === 13 || charCode > 31 && (charCode < 48 || charCode > 57)) {
-            if (charCode === 13) {
-                frm = obj.form;
-                for (i = 0; i < frm.elements.length; i++)
-                    if (frm.elements[i] === obj)
-                    {
-                        if (i === frm.elements.length - 1)
-                            i = -1;
-                        break
-                    }
-                /*ACA ESTA EL CAMBIO*/
-                if (frm.elements[i + 1].disabled === true)
-                    tabular(e, frm.elements[i + 1]);
-                else
-                    frm.elements[i + 1].focus();
-                return false;
-            }
-            return false;
-        }
-        return true;
-
-    }
-
-    function valida_clave() {
-        var missinginfo = "";
-        if ($("#Nombre").val()==""){missinginfo += "\n El campo Clave de la Unidad no debe de estar vacío";}                
-        if (missinginfo != ""){
-            missinginfo = "\n TE HA FALTADO INTRODUCIR LOS SIGUIENTES DATOS PARA ENVIAR PETICIÓN DE SOPORTE:\n" + missinginfo + "\n\n ¡INGRESA LOS DATOS FALTANTES Y TRATA OTRA VEZ!\n";
-            alert(missinginfo);            
-            return false;
-        }else{            
-            return true;
-        }
-    }
-
-    function valida_alta() {
-        var missinginfo = "";
-        if ($("#Nombre").val()==""){missinginfo += "\n El campo Clave de la Unidad no debe de estar vacío";}
-        if ($("#FecFab").val()==""){missinginfo += "\n El campo Fecha Entrega no debe de estar vacío";}        
-        if (missinginfo != ""){
-            missinginfo = "\n TE HA FALTADO INTRODUCIR LOS SIGUIENTES DATOS PARA ENVIAR PETICIÓN DE SOPORTE:\n" + missinginfo + "\n\n ¡INGRESA LOS DATOS FALTANTES Y TRATA OTRA VEZ!\n";
-            alert(missinginfo);
-            
-            return false;
-        }else{
-            
-            return true;
-        }
-    }
+    $(function() {
+        $("#Fecha").datepicker();
+        $("#Fecha").datepicker('option', {dateFormat: 'dd/mm/yy'});
+    });
 </script>
-<script language="javascript">
-    function justNumbers(e)
-    {
-        var keynum = window.event ? window.event.keyCode : e.which;
-        if ((keynum == 8) || (keynum == 46))
-            return true;
-
-        return /\d/.test(String.fromCharCode(keynum));
-    }
-    otro = 0;
-    function LP_data() {
-        var key = window.event.keyCode;//codigo de tecla. 
-        if (key < 48 || key > 57) {//si no es numero 
-            window.event.keyCode = 0;//anula la entrada de texto. 
-        }
-    }
-    function anade(esto) {
-        if (esto.value.length === 0) {
-            if (esto.value.length == 0) {
-                esto.value += "(";
-            }
-        }
-        if (esto.value.length > otro) {
-            if (esto.value.length == 4) {
-                esto.value += ") ";
-            }
-        }
-        if (esto.value.length > otro) {
-            if (esto.value.length == 9) {
-                esto.value += "-";
-            }
-        }
-        if (esto.value.length < otro) {
-            if (esto.value.length == 4 || esto.value.length == 9) {
-                esto.value = esto.value.substring(0, esto.value.length - 1);
-            }
-        }
-        otro = esto.value.length
-    }
-
-
-    function tabular(e, obj)
-    {
-        tecla = (document.all) ? e.keyCode : e.which;
-        if (tecla != 13)
-            return;
-        frm = obj.form;
-        for (i = 0; i < frm.elements.length; i++)
-            if (frm.elements[i] == obj)
-            {
-                if (i == frm.elements.length - 1)
-                    i = -1;
-                break
-            }
-        /*ACA ESTA EL CAMBIO*/
-        if (frm.elements[i + 1].disabled == true)
-            tabular(e, frm.elements[i + 1]);
-        else
-            frm.elements[i + 1].focus();
-        return false;
-    }
-
-$(function() {
-    $("#FecFab").datepicker();
-    $("#FecFab").datepicker('option', {dateFormat: 'dd/mm/yy'});
-});
-</script> 
