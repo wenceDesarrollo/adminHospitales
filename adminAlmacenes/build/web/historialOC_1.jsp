@@ -4,7 +4,8 @@
     Author     : Americo
 --%>
 
-<%@page import="java.text.*"%>
+<%@page import="java.text.DecimalFormatSymbols"%>
+<%@page import="java.text.DecimalFormat"%>
 <%@page import="java.sql.ResultSet"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="conn.*" %>
@@ -13,6 +14,10 @@
 <%java.text.DateFormat df2 = new java.text.SimpleDateFormat("yyyy-MM-dd"); %>
 <%java.text.DateFormat df3 = new java.text.SimpleDateFormat("dd/MM/yyyy"); %>
 <%
+    DecimalFormat formatter = new DecimalFormat("#,###,###");
+    DecimalFormatSymbols custom = new DecimalFormatSymbols();
+    custom.setDecimalSeparator(',');
+    formatter.setDecimalFormatSymbols(custom);
     HttpSession sesion = request.getSession();
     String usua = "";
     if (sesion.getAttribute("nombre") != null) {
@@ -21,42 +26,25 @@
         //response.sendRedirect("index.jsp");
     }
     ConectionDB_SAA con = new ConectionDB_SAA();
-
-    String fol_gnkl = "", fol_remi = "", orden_compra = "", fecha = "";
+    String Fecha = "";
+    String fechaCap = "";
+    String Proveedor = "";
     try {
-        if (request.getParameter("accion").equals("buscar")) {
-            fol_gnkl = request.getParameter("fol_gnkl");
-            fol_remi = request.getParameter("fol_remi");
-            orden_compra = request.getParameter("orden_compra");
-            fecha = request.getParameter("fecha");
-        }
+        fechaCap = df2.format(df3.parse(request.getParameter("Fecha")));
+        Fecha = request.getParameter("Fecha");
     } catch (Exception e) {
 
     }
-    if (fol_gnkl == null) {
-        fol_gnkl = "";
-        fol_remi = "";
-        orden_compra = "";
-        fecha = "";
+    if(fechaCap==null){
+        fechaCap="";
     }
-
-    String Cliente = "", fecEnt = "";
     try {
-        Cliente = request.getParameter("Cliente");
+        Proveedor = request.getParameter("Proveedor");
     } catch (Exception e) {
 
     }
-    if (Cliente == null) {
-        Cliente = "";
-    }
-    try {
-        fecEnt = request.getParameter("Fecha");
-        fecEnt = df2.format(df3.parse(fecEnt));
-    } catch (Exception e) {
-
-    }
-    if (fecEnt == null) {
-        fecEnt = "";
+    if(Proveedor==null){
+        Proveedor="";
     }
 %>
 <html>
@@ -118,8 +106,7 @@
                                     <li><a href="../reimpresion.jsp">Reimpresión de Docs</a></li>
                                 </ul>
                             </li-->
-                            <%
-                                if (usua.equals("root")) {
+                            <%                                if (usua.equals("root")) {
                             %>
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Usuario<b class="caret"></b></a>
@@ -140,27 +127,20 @@
             </div>
 
             <div>
-                <h3>Reimpresion de Remisiones</h3>
-                <h4>Seleccione el folio a imprimir</h4>
+                <h3>Historial de Órdenes de Compra</h3>
                 <div class="row">
-                    <form action="entregas.jsp" method="post">
-                        <h4 class="col-sm-2">Cliente</h4>
+                    <form action="historialOC.jsp" method="post">
+                        <h4 class="col-sm-2">Proveedor</h4>
                         <div class="col-sm-5">
-                            <select class="form-control" name="Cliente" id="Cliente" onchange="this.form.submit();">
-                                <option value="">--Cliente--</option>
+                            <select class="form-control" name="Proveedor" id="Proveedor" onchange="this.form.submit();">
+                                <option value="">--Proveedor--</option>
                                 <%
                                     try {
                                         con.conectar();
-                                        ResultSet rset = con.consulta("select F_ClaCli, F_NomCli from tb_uniatn order by F_ClaCli");
+                                        ResultSet rset = con.consulta("select F_ClaProve, F_NomPro from tb_proveedor order by F_NomPro");
                                         while (rset.next()) {
                                 %>
-                                <option value="<%=rset.getString(2)%>"
-                                        <%
-                                            if (Cliente.equals(rset.getString(2))) {
-                                                out.println("selected");
-                                            }
-                                        %>
-                                        ><%=rset.getString(1)%> - <%=rset.getString(2)%></option>
+                                <option value="<%=rset.getString(1)%>"><%=rset.getString(2)%></option>
                                 <%
                                         }
                                         con.cierraConexion();
@@ -171,60 +151,98 @@
 
                             </select>
                         </div>
-                        <h4 class="col-sm-1">Fecha</h4>
+                        <h4 class="col-sm-2">Fecha de Entrega</h4>
                         <div class="col-sm-2">
-                            <input type="text" class="form-control" data-date-format="dd/mm/yyyy" id="Fecha" name="Fecha" readonly value="<%=fecEnt%>" onchange="this.form.submit();" />
+                            <input type="text" class="form-control" data-date-format="dd/mm/yyyy" id="Fecha" name="Fecha"  onchange="this.form.submit();" />
                         </div>
-                        <a class="btn btn-primary" href="entregas.jsp">Todo</a>
+                        <a class="btn btn-primary" href="historialOC.jsp">Todo</a>
                     </form>
                 </div>
-                <br />
-                <div class="panel panel-primary">
-                    <div class="panel-body">
-                        <table class="table table-bordered table-striped" id="datosCompras">
-                            <thead>
-                                <tr>
-                                    <td>No. Folio</td>
-                                    <td>Clave del Cliente</td>
-                                    <td>Fecha</td>
-                                    <td>Importe</td>
-                                    <td></td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <%
-                                    try {
-                                        con.conectar();
-                                        try {
-                                            ResultSet rset = con.consulta("SELECT F_ClaDoc, F_NomCli, DATE_FORMAT(F_FecEnt, '%d/%m/%Y') AS F_FecEnt, SUM(F_Monto) AS F_Costo FROM tb_facturavista WHERE F_NomCli like '%" + Cliente + "%' AND F_FecEnt like '%" + fecEnt + "%' GROUP BY F_ClaDoc ORDER BY F_ClaDoc+0;");
-                                            while (rset.next()) {
-                                %>
-                                <tr>
-
-                                    <td><%=rset.getString(1)%></td>
-                                    <td><%=rset.getString(2)%></td>
-                                    <td><%=rset.getString(3)%></td>
-                                    <td><%=rset.getString(4)%></td>
-                                    <td>
-                                        <form action="verFactura.jsp" method="post">
-                                            <input class="hidden" name="fol_gnkl" value="<%=rset.getString(1)%>">
-                                            <button class="btn btn-block btn-primary">Ver Factura</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                <%
-                                            }
-                                        } catch (Exception e) {
-
+            </div>
+        </div>
+        <br />
+        <div class="container">
+            <div class="panel panel-primary">
+                <div class="panel-body">
+                    <table class="table table-bordered table-striped" id="datosCompras">
+                        <thead>
+                            <tr>
+                                <td class="text-center">No. Orden</td>
+                                <td class="text-center">Proveedor</td>
+                                <td class="text-center">Fecha de Captura</td>
+                                <td class="text-center">Cant x Recibir</td>
+                                <td class="text-center">Fecha a Recibir</td>
+                                <td class="text-center">Cancelado</td>
+                                <td class="text-center">Pendiente x Recibir</td>
+                                <td class="text-center">Abierta</td>
+                                <td class="text-center">Recibido</td>
+                                <td class="text-center">Fecha Recepción</td>
+                                <td class="text-center">Cant Recibida</td>
+                                <td class="text-center">Ver OC</td>
+                                <td class="text-center">Ver Rechazo</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <%
+                                try {
+                                    con.conectar();
+                                    ResultSet rset = con.consulta("select o.F_NoCompra, p.F_NomPro, DATE_FORMAT(o.F_Fecha, '%d/%m/%Y') AS F_Fecha, SUM(o.F_Cant), DATE_FORMAT(o.F_FecSur, '%d/%m/%Y') AS F_FecSur, o.F_StsPed from tb_pedidoisem o, tb_proveedor p where o.F_Provee = F_ClaProve and o.F_FecSur like '%" + fechaCap + "%' and p.F_ClaProve like '%"+Proveedor+"%' and F_StsPed != 0 group by  o.F_NoCompra");
+                                    while (rset.next()) {
+                                        String pendiente="", abierta="";
+                                        String cancelado = "";
+                                        if (rset.getString(6).equals("2")) {
+                                            cancelado = "X";
                                         }
-                                        con.cierraConexion();
-                                    } catch (Exception e) {
-
-                                    }
+                                        String recibido = "", fecRecibo = "";
+                                        int cantRecib = 0;
+                                        ResultSet rset2 = con.consulta("select F_OrdCom, SUM(F_CanCom), DATE_FORMAT(F_FecApl, '%d/%m/%Y') as F_FecApl from tb_compra_web where F_OrdCom = '" + rset.getString(1) + "' group by F_OrdCom ");
+                                        while (rset2.next()) {
+                                            recibido = "X";
+                                            cantRecib = rset2.getInt(2);
+                                            fecRecibo = rset2.getString(3);
+                                        }
+                                        
+                                        if(rset.getInt(4)>cantRecib && cantRecib!=0){
+                                            recibido = "";
+                                            abierta="X";
+                                        } 
+                                        if(cantRecib==0){
+                                            pendiente="X";
+                                        }
+                                        if (cancelado.equals("X")){
+                                            pendiente="";
+                                        }
+                            %>
+                            <tr>
+                                <td><%=rset.getString(1)%></td>
+                                <td><%=rset.getString(2)%></td>
+                                <td><%=rset.getString(3)%></td>
+                                <td class="text-right"><%=formatter.format(rset.getInt(4))%></td>
+                                <td><%=rset.getString(5)%></td>
+                                <td class="text-center"><%=cancelado%></td>
+                                <td class="text-center"><%=pendiente%></td>
+                                <td class="text-center"><%=abierta%></td>
+                                <td class="text-center"><%=recibido%></td>
+                                <td><%=fecRecibo%></td>
+                                <td class="text-right"><%=formatter.format(cantRecib)%></td>
+                                <td><button class="btn btn-success" onclick="javascript:window.open('verOrdenCompra.jsp?NoCompra=<%=rset.getString(1)%>','','width=600,height=400,left=50,top=50,toolbar=no')"><span class="glyphicon glyphicon-search"></span></button></td>
+                                <%
+                                ResultSet rset3 = con.consulta("SELECT F_Ima FROM TB_ImaRe where F_OrdCom = '" + rset.getString(1) + "'");
+                                while(rset3.next())
+                                {
                                 %>
-                            </tbody>
-                        </table>
-                    </div>
+                                <td><a href="Rechazo/<%=rset3.getString("F_Ima")%>.jpg"  rel="lightbox" target="_black"><button class="btn btn-success"><span class="glyphicon glyphicon-picture"></span></button></a></td>
+                                <%}%>
+                            </tr>
+                            <%
+                                    }
+                                    con.cierraConexion();
+                                } catch (Exception e) {
+                                    System.out.println(e.getMessage());
+                                }
+                            %>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

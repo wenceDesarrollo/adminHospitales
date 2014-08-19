@@ -28,7 +28,7 @@
     ConectionDB_SAA con = new ConectionDB_SAA();
     String Fecha = "";
     String fechaCap = "";
-    String Proveedor = "";
+    String Proveedor = "",imagen="";
     try {
         fechaCap = df2.format(df3.parse(request.getParameter("Fecha")));
         Fecha = request.getParameter("Fecha");
@@ -79,10 +79,11 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Men&uacute; de Opciones <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
-                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
                                     <li><a href="exist.jsp">Existencias en CEDIS</a></li>
+                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>
                                     <li><a href="historialOC.jsp">Historial OC</a></li>
+                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="ordenesCompra.jsp">Órdenes de Compra</a></li>
                                     <!--li><a href="rep.jsp">Reporteador</a></li>
                                     <!--li><a href="requerimiento.jsp">Carga de Requerimiento</a></li>
@@ -150,7 +151,7 @@
 
                             </select>
                         </div>
-                        <h4 class="col-sm-2">Fecha de Captura</h4>
+                        <h4 class="col-sm-2">Fecha de Entrega</h4>
                         <div class="col-sm-2">
                             <input type="text" class="form-control" data-date-format="dd/mm/yyyy" id="Fecha" name="Fecha"  onchange="this.form.submit();" />
                         </div>
@@ -177,13 +178,15 @@
                                 <td class="text-center">Recibido</td>
                                 <td class="text-center">Fecha Recepción</td>
                                 <td class="text-center">Cant Recibida</td>
+                                <td class="text-center">Ver OC</td>
+                                <td class="text-center">Ver Rechazo</td>
                             </tr>
                         </thead>
                         <tbody>
                             <%
                                 try {
                                     con.conectar();
-                                    ResultSet rset = con.consulta("select o.F_NoCompra, p.F_NomPro, DATE_FORMAT(o.F_Fecha, '%d/%m/%Y') AS F_Fecha, SUM(o.F_Cant), DATE_FORMAT(o.F_FecSur, '%d/%m/%Y') AS F_FecSur, o.F_StsPed from tb_pedidoisem o, tb_proveedor p where o.F_Provee = F_ClaProve and o.F_Fecha like '%" + fechaCap + "%' and p.F_ClaProve like '%"+Proveedor+"%' and F_StsPed != 0 group by  o.F_NoCompra");
+                                    ResultSet rset = con.consulta("select o.F_NoCompra, p.F_NomPro, DATE_FORMAT(o.F_Fecha, '%d/%m/%Y') AS F_Fecha, SUM(o.F_Cant), DATE_FORMAT(o.F_FecSur, '%d/%m/%Y') AS F_FecSur, o.F_StsPed from tb_pedidoisem o, tb_proveedor p where o.F_Provee = F_ClaProve and o.F_FecSur like '%" + fechaCap + "%' and p.F_ClaProve like '%"+Proveedor+"%' and F_StsPed != 0 group by  o.F_NoCompra");
                                     while (rset.next()) {
                                         String pendiente="", abierta="";
                                         String cancelado = "";
@@ -209,6 +212,11 @@
                                         if (cancelado.equals("X")){
                                             pendiente="";
                                         }
+                                        ResultSet rset3 = con.consulta("SELECT F_Ima FROM TB_ImaRe where F_OrdCom = '" + rset.getString(1) + "'");
+                                        while(rset3.next())
+                                        {
+                                        imagen = rset3.getString("F_Ima");
+                                        }
                             %>
                             <tr>
                                 <td><%=rset.getString(1)%></td>
@@ -222,8 +230,15 @@
                                 <td class="text-center"><%=recibido%></td>
                                 <td><%=fecRecibo%></td>
                                 <td class="text-right"><%=formatter.format(cantRecib)%></td>
+                                <td><button class="btn btn-success" onclick="javascript:window.open('verOrdenCompra.jsp?NoCompra=<%=rset.getString(1)%>','','width=600,height=400,left=50,top=50,toolbar=no')"><span class="glyphicon glyphicon-search"></span></button></td>
+                                <%if(imagen.equals("")){%>
+                                <td>&nbsp;</td>
+                                <%}else{%>
+                                <td><a href="Rechazo/<%=imagen%>.jpg"  rel="lightbox" target="_black"><button class="btn btn-success"><span class="glyphicon glyphicon-picture"></span></button></a></td>
+                                <%}%>
                             </tr>
                             <%
+                            imagen="";
                                     }
                                     con.cierraConexion();
                                 } catch (Exception e) {

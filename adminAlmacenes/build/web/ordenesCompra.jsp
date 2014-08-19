@@ -79,10 +79,11 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Men&uacute; de Opciones <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
-                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
                                     <li><a href="exist.jsp">Existencias en CEDIS</a></li>
+                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>
                                     <li><a href="historialOC.jsp">Historial OC</a></li>
+                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="ordenesCompra.jsp">Órdenes de Compra</a></li>
                                     <!--li><a href="rep.jsp">Reporteador</a></li>
                                     <!--li><a href="requerimiento.jsp">Carga de Requerimiento</a></li>

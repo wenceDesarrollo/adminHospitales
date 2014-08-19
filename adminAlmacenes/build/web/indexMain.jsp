@@ -70,6 +70,7 @@
                                 <li><a href="factura.jsp">Recibo en Almac&eacute;n</a></li>
                                 <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
                                 <li><a href="exist.jsp">Existencias en CEDIS</a></li>
+                                <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>
                                 <!--li><a href="rep.jsp">Reporteador</a></li-->
 
                             </ul>
@@ -102,6 +103,7 @@
                     <a class="btn btn btn-primary" href="factura.jsp"  role="button">Recibo en Almac&eacute;n</a>
                     <a class="btn btn btn-primary" href="entregas.jsp" role="button">Entrega a Proveedores</a>
                     <a class="btn btn btn-primary" href="exist.jsp" role="button">Existencias en CEDIS</a>
+                    <a class="btn btn btn-primary" href="Entrega.jsp" role="button">Fecha de Recibo en CEDIS</a>
                     <!--a class="btn btn btn-primary" href="rep.jsp" role="button">Reporteador</a-->
                 <div class="row">
                     <div class="col-md-4"></div><div class="col-md-4"><img src="imagenes/gnk-logo2_1.jpg"></div><div class="col-md-4"></div>

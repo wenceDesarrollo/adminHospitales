@@ -15,11 +15,17 @@
 <%java.text.DateFormat df3 = new java.text.SimpleDateFormat("dd/MM/yyyy"); %>
 <%
     DecimalFormat formatter = new DecimalFormat("#,###,###");
+    DecimalFormat formatter2 = new DecimalFormat("#,###,###.##");
     DecimalFormatSymbols custom = new DecimalFormatSymbols();
     custom.setDecimalSeparator(',');
     formatter.setDecimalFormatSymbols(custom);
     HttpSession sesion = request.getSession();
-    String usua = "ISEM", Clave = "1";
+    String usua = "ISEM", Clave = "1",Claves="";
+    ResultSet rset ;
+    ResultSet rset2;
+    int Cantidad=0;
+    double monto=0, montof=0;
+    
     /*if (sesion.getAttribute("nombre") != null) {
      usua = (String) sesion.getAttribute("nombre");
      Clave = (String) session.getAttribute("clave");
@@ -68,10 +74,11 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Men&uacute; de Opciones <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
-                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
                                     <li><a href="exist.jsp">Existencias en CEDIS</a></li>
+                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>
                                     <li><a href="historialOC.jsp">Historial OC</a></li>
+                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="ordenesCompra.jsp">Órdenes de Compra</a></li>
                                     <!--li><a href="rep.jsp">Reporteador</a></li>
                                     <!--li><a href="requerimiento.jsp">Carga de Requerimiento</a></li>
@@ -116,9 +123,11 @@
             </div>
         </div>
         <div class="container">
+            <form action="exist.jsp" method="post">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Existencias en CEDIS</h3>
+                    <h3 class="panel-title">Existencias en CEDIS
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="clave" id="clave" placeholder="Clave" > <button class="btn btn-sm btn-success" id="btn-buscar2">BUSCAR&nbsp;<label class="glyphicon glyphicon-search"></label></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="gnr.jsp">Descargar<label class="glyphicon glyphicon-download"></label></a></h3>
                 </div>
 
                 <div class="panel-footer">
@@ -131,15 +140,28 @@
                                 <td>Caducidad</td>
                                 <td>Ubicacion</td>
                                 <td>Cantidad</td>
+                                <td>Costo U.</td>
+                                <td>Monto</td>
                             </tr>
                         </thead>
                         <tbody>
                             <%
                                 try {
                                     con.conectar();
-                                    ResultSet rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, l.F_Ubica, l.F_Cb, SUM(F_ExiLot), u.F_DesUbi FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 GROUP BY 	l.F_ClaPro ");
+                                    
+                                   Claves = request.getParameter("clave");
+                                   if(Claves==null){
+                                       Claves="";
+                                   }
+                                   
+                                   if (Claves.equals("")){
+                                    rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, l.F_Ubica, l.F_Cb, SUM(F_ExiLot), u.F_DesUbi,(m.F_Costo*l.F_ExiLot) as monto,m.F_Costo FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad,l.F_Ubica, l.F_Cb, u.F_DesUbi");
+                                   }else{
+                                       rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, l.F_Ubica, l.F_Cb, SUM(F_ExiLot), u.F_DesUbi,(m.F_Costo*l.F_ExiLot) as monto,m.F_Costo FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 and l.F_ClaPro='"+Claves+"' GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad,l.F_Ubica, l.F_Cb, u.F_DesUbi");
+                                   }
                                     while (rset.next()) {
                                         System.out.println(rset.getString(1));
+                                        
                             %>
                             <tr>
                                 <td><%=rset.getString(1)%></td>
@@ -148,8 +170,19 @@
                                 <td><%=rset.getString(4)%></td>
                                 <td><%=rset.getString(8)%></td>
                                 <td><%=formatter.format(rset.getInt(7))%></td>
+                                <td><%=formatter2.format(rset.getDouble(10))%></td>
+                                <td><%=formatter2.format(rset.getDouble(9))%></td>
                             </tr>
                             <%
+                                    }
+                                    if (Claves.equals("")){
+                                    rset2 = con.consulta("SELECT SUM(F_ExiLot),sum((m.F_Costo*l.F_ExiLot)) as monto FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro");
+                                    }else{
+                                        rset2 = con.consulta("SELECT SUM(F_ExiLot),sum((m.F_Costo*l.F_ExiLot)) as monto FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro where l.F_ClaPro='"+Claves+"'");
+                                    }
+                                    while (rset2.next()) {
+                                    Cantidad = Integer.parseInt(rset2.getString(1));
+                                    monto = Double.parseDouble(rset2.getString(2));
                                     }
                                     con.cierraConexion();
                                 } catch (Exception e) {
@@ -157,9 +190,11 @@
                                 }
                             %>
                         </tbody>
-                    </table>
+                        
+                    </table><h3>Total Piezas = <%=formatter.format(Cantidad)%>&nbsp;&nbsp;&nbsp;Monto Total = $<%=formatter2.format(monto)%></h3>
                 </div>
             </div>
+            </form>
         </div>
         <br><br><br>
         <div class="navbar navbar-fixed-bottom navbar-inverse">
@@ -298,11 +333,7 @@
         frm = obj.form;
         for (i = 0; i < frm.elements.length; i++)
             if (frm.elements[i] == obj)
-            {
-                if (i == frm.elements.length - 1)
-                    i = -1;
-                break
-            }
+            
         /*ACA ESTA EL CAMBIO*/
         if (frm.elements[i + 1].disabled == true)
             tabular(e, frm.elements[i + 1]);

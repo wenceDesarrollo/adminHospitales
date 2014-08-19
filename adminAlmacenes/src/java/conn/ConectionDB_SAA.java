@@ -45,6 +45,9 @@ public class ConectionDB_SAA {
         this.usuario = "isemusr";
         this.clave = "AfQaufdC7S";
         this.url = "jdbc:mysql://162.209.67.250:3306/isemcc";
+        /*this.usuario = "root";
+        this.clave = "eve9397";
+        this.url = "jdbc:mysql://localhost:3306/isemcc";*/
         this.driverClassName = "org.gjt.mm.mysql.Driver";
     }
  
