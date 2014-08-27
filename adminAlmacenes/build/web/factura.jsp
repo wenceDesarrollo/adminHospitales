@@ -176,6 +176,7 @@
                             <input type="text" class="form-control" data-date-format="dd/mm/yyyy" id="Fecha" name="Fecha" readonly value="<%=fecEnt%>" onchange="this.form.submit();" />
                         </div>
                         <a class="btn btn-primary" href="factura.jsp">Todo</a>
+                        <a class="btn btn-primary" href="factura.jsp"><span class="glyphicon glyphicon-refresh"></span></a>
                     </form>
                 </div>
                 <br />

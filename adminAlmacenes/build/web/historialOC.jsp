@@ -28,23 +28,23 @@
     ConectionDB_SAA con = new ConectionDB_SAA();
     String Fecha = "";
     String fechaCap = "";
-    String Proveedor = "",imagen="";
+    String Proveedor = "", imagen = "";
     try {
         fechaCap = df2.format(df3.parse(request.getParameter("Fecha")));
         Fecha = request.getParameter("Fecha");
     } catch (Exception e) {
 
     }
-    if(fechaCap==null){
-        fechaCap="";
+    if (fechaCap == null) {
+        fechaCap = "";
     }
     try {
         Proveedor = request.getParameter("Proveedor");
     } catch (Exception e) {
 
     }
-    if(Proveedor==null){
-        Proveedor="";
+    if (Proveedor == null) {
+        Proveedor = "";
     }
 %>
 <html>
@@ -130,7 +130,7 @@
                 <h3>Historial de Órdenes de Compra</h3>
                 <div class="row">
                     <form action="historialOC.jsp" method="post">
-                        <h4 class="col-sm-2">Proveedor</h4>
+                        <h4 class="col-sm-1">Proveedor</h4>
                         <div class="col-sm-5">
                             <select class="form-control" name="Proveedor" id="Proveedor" onchange="this.form.submit();">
                                 <option value="">--Proveedor--</option>
@@ -156,6 +156,7 @@
                             <input type="text" class="form-control" data-date-format="dd/mm/yyyy" id="Fecha" name="Fecha"  onchange="this.form.submit();" />
                         </div>
                         <a class="btn btn-primary" href="historialOC.jsp">Todo</a>
+                        <a class="btn btn-primary" href="historialOC.jsp"><span class="glyphicon glyphicon-refresh"></span></a>
                     </form>
                 </div>
             </div>
@@ -180,16 +181,18 @@
                                 <td class="text-center">Cant Recibida</td>
                                 <td class="text-center">Ver OC</td>
                                 <td class="text-center">Ver Rechazo</td>
+                                <td class="text-center">Ver Docto</td>
                             </tr>
                         </thead>
                         <tbody>
                             <%
                                 try {
                                     con.conectar();
-                                    ResultSet rset = con.consulta("select o.F_NoCompra, p.F_NomPro, DATE_FORMAT(o.F_Fecha, '%d/%m/%Y') AS F_Fecha, SUM(o.F_Cant), DATE_FORMAT(o.F_FecSur, '%d/%m/%Y') AS F_FecSur, o.F_StsPed from tb_pedidoisem o, tb_proveedor p where o.F_Provee = F_ClaProve and o.F_FecSur like '%" + fechaCap + "%' and p.F_ClaProve like '%"+Proveedor+"%' and F_StsPed != 0 group by  o.F_NoCompra");
+                                    ResultSet rset = con.consulta("select o.F_NoCompra, p.F_NomPro, DATE_FORMAT(o.F_Fecha, '%d/%m/%Y') AS F_Fecha, SUM(o.F_Cant), DATE_FORMAT(o.F_FecSur, '%d/%m/%Y') AS F_FecSur, o.F_StsPed from tb_pedidoisem o, tb_proveedor p where o.F_Provee = F_ClaProve and o.F_FecSur like '%" + fechaCap + "%' and p.F_ClaProve like '%" + Proveedor + "%' and F_StsPed != 0 group by  o.F_NoCompra");
                                     while (rset.next()) {
-                                        String pendiente="", abierta="";
+                                        String pendiente = "", abierta = "";
                                         String cancelado = "";
+                                        String imaOC = "";
                                         if (rset.getString(6).equals("2")) {
                                             cancelado = "X";
                                         }
@@ -201,21 +204,24 @@
                                             cantRecib = rset2.getInt(2);
                                             fecRecibo = rset2.getString(3);
                                         }
-                                        
-                                        if(rset.getInt(4)>cantRecib && cantRecib!=0){
+
+                                        if (rset.getInt(4) > cantRecib && cantRecib != 0) {
                                             recibido = "";
-                                            abierta="X";
-                                        } 
-                                        if(cantRecib==0){
-                                            pendiente="X";
+                                            abierta = "X";
                                         }
-                                        if (cancelado.equals("X")){
-                                            pendiente="";
+                                        if (cantRecib == 0) {
+                                            pendiente = "X";
+                                        }
+                                        if (cancelado.equals("X")) {
+                                            pendiente = "";
                                         }
                                         ResultSet rset3 = con.consulta("SELECT F_Ima FROM TB_ImaRe where F_OrdCom = '" + rset.getString(1) + "'");
-                                        while(rset3.next())
-                                        {
-                                        imagen = rset3.getString("F_Ima");
+                                        while (rset3.next()) {
+                                            imagen = rset3.getString("F_Ima");
+                                        }
+                                        rset3 = con.consulta("SELECT F_Ima FROM TB_ImaOC where F_OrdCom = '" + rset.getString(1) + "'");
+                                        while (rset3.next()) {
+                                            imaOC = rset3.getString("F_Ima");
                                         }
                             %>
                             <tr>
@@ -230,15 +236,22 @@
                                 <td class="text-center"><%=recibido%></td>
                                 <td><%=fecRecibo%></td>
                                 <td class="text-right"><%=formatter.format(cantRecib)%></td>
-                                <td><button class="btn btn-success" onclick="javascript:window.open('verOrdenCompra.jsp?NoCompra=<%=rset.getString(1)%>','','width=600,height=400,left=50,top=50,toolbar=no')"><span class="glyphicon glyphicon-search"></span></button></td>
-                                <%if(imagen.equals("")){%>
+                                <td><button class="btn btn-success" onclick="javascript:window.open('verOrdenCompra.jsp?NoCompra=<%=rset.getString(1)%>', '', 'width=600,height=400,left=50,top=50,toolbar=no')"><span class="glyphicon glyphicon-search"></span></button></td>
+                                        <%if (imagen.equals("")) {%>
                                 <td>&nbsp;</td>
-                                <%}else{%>
+                                <%} else {%>
                                 <td><a href="Rechazo/<%=imagen%>.jpg"  rel="lightbox" target="_black"><button class="btn btn-success"><span class="glyphicon glyphicon-picture"></span></button></a></td>
-                                <%}%>
+                                            <%
+                                                }
+                                                if (imaOC.equals("")) {
+                                            %>
+                                <td>&nbsp;</td>
+                                <%} else {%>
+                                <td><a href="imagenes/OC/<%=imaOC%>.jpg"  rel="lightbox" target="_black"><button class="btn btn-success"><span class="glyphicon glyphicon-picture"></span></button></a></td>
+                                            <%}%>
                             </tr>
                             <%
-                            imagen="";
+                                        imagen = "";
                                     }
                                     con.cierraConexion();
                                 } catch (Exception e) {
@@ -272,9 +285,9 @@
 <script src="js/jquery.dataTables.js"></script>
 <script src="js/dataTables.bootstrap.js"></script>
 <script>
-                                $(document).ready(function() {
-                                    $('#datosCompras').dataTable();
-                                });
+                                    $(document).ready(function() {
+                                        $('#datosCompras').dataTable();
+                                    });
 </script>
 <script>
     $(function() {

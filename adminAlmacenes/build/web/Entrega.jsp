@@ -131,7 +131,7 @@
                 <h3>FECHA DE RECIBO POR PROVEEDOR</h3>
                 <div class="row">
                     <form action="Entrega.jsp" method="post">
-                        <h4 class="col-sm-2">Proveedor</h4>
+                        <h4 class="col-sm-1">Proveedor</h4>
                         <div class="col-sm-5">
                             <select class="form-control" name="Proveedor" id="Proveedor" onchange="this.form.submit();">
                                 <option value="">--Proveedor--</option>
@@ -157,6 +157,7 @@
                             <input type="text" class="form-control" data-date-format="dd/mm/yyyy" id="Fecha" name="Fecha"  onchange="this.form.submit();" />
                         </div>
                         <a class="btn btn-primary" href="Entrega.jsp">Todo</a>
+                        <a class="btn btn-primary" href="Entrega.jsp"><span class="glyphicon glyphicon-refresh"></span></a>
                     </form>
                 </div>
             </div>
