@@ -64,13 +64,15 @@
                         <li><a data-toggle="modal" href="#myModal">Cont&aacute;ctanos</a></li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">M&oacute;dulos <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
+                            <ul class="dropdown-menu">                         
+                                <li><a href="clave.jsp">Concentrado por Clave</a></li>                                
+                                <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
+                                <li><a href="exist.jsp">Existencias en CEDIS</a></li>
+                                <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>                                
                                 <li><a href="historialOC.jsp">Historial OC</a></li>
                                 <li><a href="ordenesCompra.jsp">Órdenes de Compra</a></li>
                                 <li><a href="factura.jsp">Recibo en Almac&eacute;n</a></li>
-                                <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
-                                <li><a href="exist.jsp">Existencias en CEDIS</a></li>
-                                <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>
+                                <li><a href="semaforo.jsp">Semaforización</a></li>
                                 <!--li><a href="rep.jsp">Reporteador</a></li-->
 
                             </ul>
@@ -97,13 +99,16 @@
                 </p>
                 <p>Escoja una de las opciones que se muestran a continuaci&oacute;n:</p>
                 <p>
-
-                    <a class="btn btn btn-primary" href="historialOC.jsp" role="button">Historial OC</a>
-                    <a class="btn btn btn-primary" href="ordenesCompra.jsp"  role="button">Órdenes de compra</a>
-                    <a class="btn btn btn-primary" href="factura.jsp"  role="button">Recibo en Almac&eacute;n</a>
+                    <a class="btn btn btn-primary" href="clave.jsp" role="button">Concentrado por Clave</a>                    
                     <a class="btn btn btn-primary" href="entregas.jsp" role="button">Entrega a Proveedores</a>
                     <a class="btn btn btn-primary" href="exist.jsp" role="button">Existencias en CEDIS</a>
                     <a class="btn btn btn-primary" href="Entrega.jsp" role="button">Fecha de Recibo en CEDIS</a>
+                    <a class="btn btn btn-primary" href="historialOC.jsp" role="button">Historial OC</a>
+                    <a class="btn btn btn-primary" href="ordenesCompra.jsp"  role="button">Órdenes de compra</a>                    
+                </p>
+                <p>
+                    <a class="btn btn btn-primary" href="factura.jsp"  role="button">Recibo en Almac&eacute;n</a>
+                    <a class="btn btn btn-primary" href="semaforo.jsp" role="button">Semaforización</a>
                     <!--a class="btn btn btn-primary" href="rep.jsp" role="button">Reporteador</a-->
                 <div class="row">
                     <div class="col-md-4"></div><div class="col-md-4"><img src="imagenes/gnk-logo2_1.jpg"></div><div class="col-md-4"></div>

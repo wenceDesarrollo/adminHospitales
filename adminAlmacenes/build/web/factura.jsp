@@ -140,7 +140,7 @@
             </div>
 
             <div>
-                <h3>Ver Compras</h3>
+                <h3>Recibo en Almacén</h3>
                 <h4>Seleccione el folio a ver</h4>
                 <div class="row">
                     <form action="factura.jsp" method="post">

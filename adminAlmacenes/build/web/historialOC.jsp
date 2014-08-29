@@ -25,7 +25,7 @@
     } else {
         //response.sendRedirect("index.jsp");
     }
-    ConectionDB_SAA con = new ConectionDB_SAA();
+    ConectionDB con = new ConectionDB();
     String Fecha = "";
     String fechaCap = "";
     String Proveedor = "", imagen = "";
@@ -49,14 +49,15 @@
 %>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <!-- Estilos CSS -->
         <link href="css/bootstrap.css" rel="stylesheet">
         <link rel="stylesheet" href="css/cupertino/jquery-ui-1.10.3.custom.css" />
         <link href="css/navbar-fixed-top.css" rel="stylesheet">
         <link href="css/datepicker3.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.css">
+        <link href="css/lightbox.css" rel="stylesheet">
         <!---->
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>SIE Sistema de Ingreso de Entradas</title>
     </head>
     <body>
@@ -154,6 +155,7 @@
                         <h4 class="col-sm-2">Fecha de Entrega</h4>
                         <div class="col-sm-2">
                             <input type="text" class="form-control" data-date-format="dd/mm/yyyy" id="Fecha" name="Fecha"  onchange="this.form.submit();" />
+
                         </div>
                         <a class="btn btn-primary" href="historialOC.jsp">Todo</a>
                         <a class="btn btn-primary" href="historialOC.jsp"><span class="glyphicon glyphicon-refresh"></span></a>
@@ -181,7 +183,7 @@
                                 <td class="text-center">Cant Recibida</td>
                                 <td class="text-center">Ver OC</td>
                                 <td class="text-center">Ver Rechazo</td>
-                                <td class="text-center">Ver Docto</td>
+                                <td class="text-center">Ver Doctos</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -219,10 +221,7 @@
                                         while (rset3.next()) {
                                             imagen = rset3.getString("F_Ima");
                                         }
-                                        rset3 = con.consulta("SELECT F_Ima FROM TB_ImaOC where F_OrdCom = '" + rset.getString(1) + "'");
-                                        while (rset3.next()) {
-                                            imaOC = rset3.getString("F_Ima");
-                                        }
+
                             %>
                             <tr>
                                 <td><%=rset.getString(1)%></td>
@@ -243,12 +242,15 @@
                                 <td><a href="Rechazo/<%=imagen%>.jpg"  rel="lightbox" target="_black"><button class="btn btn-success"><span class="glyphicon glyphicon-picture"></span></button></a></td>
                                             <%
                                                 }
-                                                if (imaOC.equals("")) {
                                             %>
-                                <td>&nbsp;</td>
-                                <%} else {%>
-                                <td><a href="imagenes/OC/<%=imaOC%>.jpg"  rel="lightbox" target="_black"><button class="btn btn-success"><span class="glyphicon glyphicon-picture"></span></button></a></td>
-                                            <%}%>
+                                <td>
+                                    <%
+                                        rset3 = con.consulta("SELECT F_Ima FROM TB_ImaOC where F_OrdCom = '" + rset.getString(1) + "' group by F_OrdCom");
+                                        while (rset3.next()) {
+                                    %>
+                                    <a href="#" class="btn btn-primary btn-block" data-toggle="modal" data-target="#Modal<%=rset.getString(1)%>"><span class="glyphicon glyphicon-picture"></span></a>
+                                        <%}%>
+                                </td>
                             </tr>
                             <%
                                         imagen = "";
@@ -270,28 +272,81 @@
                 Todos los Derechos Reservados
             </div>
         </div>
+
+
+        <!--
+        Modal
+        -->
+        <%
+            try {
+                con.conectar();
+                ResultSet rset = con.consulta("select o.F_NoCompra from tb_pedidoisem o, tb_proveedor p where o.F_Provee = F_ClaProve and o.F_FecSur like '%" + fechaCap + "%' and p.F_ClaProve like '%" + Proveedor + "%' and F_StsPed != 0 group by  o.F_NoCompra");
+                while (rset.next()) {
+        %>
+        <div class="modal fade" id="Modal<%=rset.getString(1)%>" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form action="Rechazos" method="get">
+                        <div class="modal-header">
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <h4 class="modal-title" id="myModalLabel">Orden de Compra</h4>
+                                </div>
+                                <div class="col-sm-2">
+                                    <input name="NoCompraRechazo" id="NoCompraRechazo" value="<%=rset.getString(1)%>" class="form-control" readonly="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <%
+                                    ResultSet rset3 = con.consulta("SELECT F_Ima FROM TB_ImaOC where F_OrdCom = '" + rset.getString(1) + "'");
+                                    while (rset3.next()) {
+                                %>
+                                <div class="col-sm-2">
+                                    <a class="example-image-link" href="imagenes/OC/<%=rset3.getString("F_Ima")%>.jpg" data-lightbox="example-1"><img src="imagenes/OC/<%=rset3.getString("F_Ima")%>.jpg" width="100%" /></a>
+                                </div>
+                                <%}%>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <%
+                }
+                con.cierraConexion();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        %>
+        <!--
+        /Modal
+        -->
+
     </body>
-</html>
 
-
-<!-- 
-================================================== -->
-<!-- Se coloca al final del documento para que cargue mas rapido -->
-<!-- Se debe de seguir ese orden al momento de llamar los JS -->
-<script src="js/jquery-1.9.1.js"></script>
-<script src="js/bootstrap.js"></script>
-<script src="js/jquery-ui-1.10.3.custom.js"></script>
-<script src="js/bootstrap-datepicker.js"></script>
-<script src="js/jquery.dataTables.js"></script>
-<script src="js/dataTables.bootstrap.js"></script>
-<script>
+    <!-- 
+    ================================================== -->
+    <!-- Se coloca al final del documento para que cargue mas rapido -->
+    <!-- Se debe de seguir ese orden al momento de llamar los JS -->
+    <script src="js/jquery-1.9.1.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/jquery-ui-1.10.3.custom.js"></script>
+    <script src="js/lightbox.js"></script>
+    <script src="js/bootstrap-datepicker.js"></script>
+    <script src="js/jquery.dataTables.js"></script>
+    <script src="js/dataTables.bootstrap.js"></script>
+    <script>
                                     $(document).ready(function() {
                                         $('#datosCompras').dataTable();
                                     });
-</script>
-<script>
-    $(function() {
-        $("#Fecha").datepicker();
-        $("#Fecha").datepicker('option', {dateFormat: 'dd/mm/yy'});
-    });
-</script>
+    </script>
+    <script>
+        $(function() {
+            $("#Fecha").datepicker();
+            $("#Fecha").datepicker('option', {dateFormat: 'dd/mm/yy'});
+        });
+    </script>
+</html>
+
