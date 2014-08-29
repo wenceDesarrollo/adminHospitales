@@ -6,12 +6,20 @@
         <servlet-name>CorreoGmail</servlet-name>
         <servlet-class>servletCorreo.CorreoGmail</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>FileUploadServlet</servlet-name>
+        <servlet-class>in.co.sneh.controller.FileUploadServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>CorreoGmail</servlet-name>
         <url-pattern>/servletCorreo</url-pattern>
     </servlet-mapping>
     
-   <servlet>
+    <servlet-mapping>
+        <servlet-name>FileUploadServlet</servlet-name>
+        <url-pattern>/FileUploadServlet</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>Login</servlet-name>
         <servlet-class>Servlets.Login</servlet-class>
     </servlet>

@@ -304,7 +304,7 @@
                                     while (rset3.next()) {
                                 %>
                                 <div class="col-sm-2">
-                                    <a class="example-image-link" href="imagenes/OC/<%=rset3.getString("F_Ima")%>.jpg" data-lightbox="example-1"><img src="imagenes/OC/<%=rset3.getString("F_Ima")%>.jpg" width="100%" /></a>
+                                    <a class="example-image-link" href="imagenes/OC/<%=rset3.getString("F_Ima")%>" data-lightbox="example-1"><img src="imagenes/OC/<%=rset3.getString("F_Ima")%>" width="100%" /></a>
                                 </div>
                                 <%}%>
                             </div>
