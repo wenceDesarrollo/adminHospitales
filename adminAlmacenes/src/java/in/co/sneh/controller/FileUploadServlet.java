@@ -26,7 +26,7 @@ import conn.*;
 public class FileUploadServlet extends HttpServlet {
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ConectionDB con = new ConectionDB();
+        ConectionDB_SAA con = new ConectionDB_SAA();
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         String Unidad = "";

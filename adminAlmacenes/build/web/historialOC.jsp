@@ -25,7 +25,7 @@
     } else {
         //response.sendRedirect("index.jsp");
     }
-    ConectionDB con = new ConectionDB();
+    ConectionDB_LermaServer con = new ConectionDB_LermaServer();
     String Fecha = "";
     String fechaCap = "";
     String Proveedor = "", imagen = "";
@@ -80,22 +80,14 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Men&uacute; de Opciones <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
-                                    <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
+                                    <li><a href="clave.jsp">Concentrado por Clave</a></li>                                
+                                    <li><a href="entregas.jsp">Entrega a Distribuidores</a></li>
                                     <li><a href="exist.jsp">Existencias en CEDIS</a></li>
-                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>
+                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>                                
                                     <li><a href="historialOC.jsp">Historial OC</a></li>
-                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="ordenesCompra.jsp">Órdenes de Compra</a></li>
-                                    <!--li><a href="rep.jsp">Reporteador</a></li>
-                                    <!--li><a href="requerimiento.jsp">Carga de Requerimiento</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="medicamento.jsp">Catálogo de Medicamento</a></li>
-                                    <li><a href="catalogo.jsp">Catálogo de Proveedores</a></li>
-                                    <li><a href="marcas.jsp">Catálogo de Marcas</a></li>
-                                    <li><a href="reimpresion.jsp">Reimpresión de Compras</a></li>
-                                    <li><a href="reimp_factura.jsp">Reimpresión de Facturas</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="http://192.168.2.170:8081/UbicacionesConsolidado" target="_blank">Ubicaciones</a></li-->
+                                    <li><a href="factura.jsp">Recibo en Almac&eacute;n</a></li>
+                                    <li><a href="semaforo.jsp">Semaforización</a></li>
                                 </ul>
                             </li>
                             <!--li class="dropdown">
@@ -141,7 +133,7 @@
                                         ResultSet rset = con.consulta("select F_ClaProve, F_NomPro from tb_proveedor order by F_NomPro");
                                         while (rset.next()) {
                                 %>
-                                <option value="<%=rset.getString(1)%>"><%=rset.getString(2)%></option>
+                                <option value="<%=rset.getString(2)%>"><%=rset.getString(2)%></option>
                                 <%
                                         }
                                         con.cierraConexion();
@@ -190,7 +182,7 @@
                             <%
                                 try {
                                     con.conectar();
-                                    ResultSet rset = con.consulta("select o.F_NoCompra, p.F_NomPro, DATE_FORMAT(o.F_Fecha, '%d/%m/%Y') AS F_Fecha, SUM(o.F_Cant), DATE_FORMAT(o.F_FecSur, '%d/%m/%Y') AS F_FecSur, o.F_StsPed from tb_pedidoisem o, tb_proveedor p where o.F_Provee = F_ClaProve and o.F_FecSur like '%" + fechaCap + "%' and p.F_ClaProve like '%" + Proveedor + "%' and F_StsPed != 0 group by  o.F_NoCompra");
+                                    ResultSet rset = con.consulta("select o.F_NoCompra, p.F_NomPro, DATE_FORMAT(o.F_Fecha, '%d/%m/%Y') AS F_Fecha, SUM(o.F_Cant), DATE_FORMAT(o.F_FecSur, '%d/%m/%Y') AS F_FecSur, o.F_StsPed from tb_pedidoisem o, tb_proveedor p where o.F_Provee = F_ClaProve and o.F_FecSur like '%" + fechaCap + "%' and p.F_NomPro like '%" + Proveedor + "%' and F_StsPed != 0 group by  o.F_NoCompra");
                                     while (rset.next()) {
                                         String pendiente = "", abierta = "";
                                         String cancelado = "";
@@ -200,7 +192,7 @@
                                         }
                                         String recibido = "", fecRecibo = "";
                                         int cantRecib = 0;
-                                        ResultSet rset2 = con.consulta("select F_OrdCom, SUM(F_CanCom), DATE_FORMAT(F_FecApl, '%d/%m/%Y') as F_FecApl from tb_compra_web where F_OrdCom = '" + rset.getString(1) + "' group by F_OrdCom ");
+                                        ResultSet rset2 = con.consulta("select F_OrdCom, SUM(F_CanCom), DATE_FORMAT(F_FecApl, '%d/%m/%Y') as F_FecApl from tb_compra where F_OrdCom = '" + rset.getString(1) + "' group by F_OrdCom ");
                                         while (rset2.next()) {
                                             recibido = "X";
                                             cantRecib = rset2.getInt(2);
@@ -280,7 +272,7 @@
         <%
             try {
                 con.conectar();
-                ResultSet rset = con.consulta("select o.F_NoCompra from tb_pedidoisem o, tb_proveedor p where o.F_Provee = F_ClaProve and o.F_FecSur like '%" + fechaCap + "%' and p.F_ClaProve like '%" + Proveedor + "%' and F_StsPed != 0 group by  o.F_NoCompra");
+                ResultSet rset = con.consulta("select o.F_NoCompra from tb_pedidoisem o, tb_proveedor p where o.F_Provee = F_ClaProve and o.F_FecSur like '%" + fechaCap + "%' and p.F_ClaProve like '%" + Proveedor + "' and F_StsPed != 0 group by  o.F_NoCompra");
                 while (rset.next()) {
         %>
         <div class="modal fade" id="Modal<%=rset.getString(1)%>" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">

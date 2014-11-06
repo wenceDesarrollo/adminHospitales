@@ -35,7 +35,7 @@
      if (Clave== null){
      Clave="";
      }*/
-    ConectionDB_SAA con = new ConectionDB_SAA();
+    ConectionDB_LermaServer con = new ConectionDB_LermaServer();
 %>
 <html>
     <head>
@@ -74,22 +74,14 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Men&uacute; de Opciones <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
-                                    <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
+                                    <li><a href="clave.jsp">Concentrado por Clave</a></li>                                
+                                    <li><a href="entregas.jsp">Entrega a Distribuidores</a></li>
                                     <li><a href="exist.jsp">Existencias en CEDIS</a></li>
-                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>
+                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>                                
                                     <li><a href="historialOC.jsp">Historial OC</a></li>
-                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="ordenesCompra.jsp">Órdenes de Compra</a></li>
-                                    <!--li><a href="rep.jsp">Reporteador</a></li>
-                                    <!--li><a href="requerimiento.jsp">Carga de Requerimiento</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="medicamento.jsp">Catálogo de Medicamento</a></li>
-                                    <li><a href="catalogo.jsp">Catálogo de Proveedores</a></li>
-                                    <li><a href="marcas.jsp">Catálogo de Marcas</a></li>
-                                    <li><a href="reimpresion.jsp">Reimpresión de Compras</a></li>
-                                    <li><a href="reimp_factura.jsp">Reimpresión de Facturas</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="http://192.168.2.170:8081/UbicacionesConsolidado" target="_blank">Ubicaciones</a></li-->
+                                    <li><a href="factura.jsp">Recibo en Almac&eacute;n</a></li>
+                                    <li><a href="semaforo.jsp">Semaforización</a></li>
                                 </ul>
                             </li>
                             <!--li class="dropdown">
@@ -139,6 +131,7 @@
                                 <td>Lote</td>
                                 <td>Caducidad</td>
                                 <td>Ubicacion</td>
+                                <td>Marca</td>
                                 <td>Cantidad</td>
                                 <td>Costo U.</td>
                                 <td>Monto</td>
@@ -155,13 +148,18 @@
                                    }
                                    
                                    if (Claves.equals("")){
-                                    rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, l.F_Ubica, l.F_Cb, SUM(F_ExiLot), u.F_DesUbi,(m.F_Costo*l.F_ExiLot) as monto,m.F_Costo FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad,l.F_Ubica, l.F_Cb, u.F_DesUbi");
+                                    rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, l.F_Ubica, l.F_Cb, SUM(F_ExiLot), u.F_DesUbi,(m.F_Costo*SUM(l.F_ExiLot)) as monto,m.F_Costo, F_DesMar FROM tb_marca mar, tb_lote l, tb_medica m, tb_ubica u WHERE mar.F_ClaMar = l.F_ClaMar and m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad,l.F_Ubica, l.F_Cb, u.F_DesUbi");
                                    }else{
-                                       rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, l.F_Ubica, l.F_Cb, SUM(F_ExiLot), u.F_DesUbi,(m.F_Costo*l.F_ExiLot) as monto,m.F_Costo FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 and l.F_ClaPro='"+Claves+"' GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad,l.F_Ubica, l.F_Cb, u.F_DesUbi");
+                                       rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, l.F_Ubica, l.F_Cb, SUM(F_ExiLot), u.F_DesUbi,(m.F_Costo*SUM(l.F_ExiLot)) as monto,m.F_Costo, F_DesMar FROM tb_marca mar, tb_lote l, tb_medica m, tb_ubica u WHERE mar.F_ClaMar = l.F_ClaMar and m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 and l.F_ClaPro='"+Claves+"' GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad,l.F_Ubica, l.F_Cb, u.F_DesUbi");
                                    }
                                     while (rset.next()) {
-                                        System.out.println(rset.getString(1));
-                                        
+                                        double monto1 = 0;
+                                            System.out.println(rset.getString(1));
+                                            if (rset.getInt("F_ClaPro") < 9999) {
+                                                monto1 = Double.parseDouble(rset.getString("monto"));
+                                            } else {
+                                                monto1 = (Double.parseDouble(rset.getString("monto")) * 1.16);
+                                            }
                             %>
                             <tr>
                                 <td><%=rset.getString(1)%></td>
@@ -169,26 +167,32 @@
                                 <td><%=rset.getString(3)%></td>
                                 <td><%=rset.getString(4)%></td>
                                 <td><%=rset.getString(8)%></td>
+                                <td><%=rset.getString("F_DesMar")%></td>
                                 <td><%=formatter.format(rset.getInt(7))%></td>
                                 <td><%=formatter2.format(rset.getDouble(10))%></td>
-                                <td><%=formatter2.format(rset.getDouble(9))%></td>
+                                <td><%=formatter2.format(monto1)%></td>
                             </tr>
                             <%
+                                        }
+                                        if (Claves.equals("")) {
+                                            rset2 = con.consulta("SELECT (F_ExiLot),((m.F_Costo*(l.F_ExiLot))) as monto, l.F_ClaPro FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro group by l.F_IdLote");
+                                        } else {
+                                            rset2 = con.consulta("SELECT (F_ExiLot),((m.F_Costo*(l.F_ExiLot))) as monto, l.F_ClaPro FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro where l.F_ClaPro='" + Claves + "'  group by l.F_IdLote");
+                                        }
+                                        while (rset2.next()) {
+                                            if (rset2.getInt("F_ClaPro") < 9999) {
+                                                monto = monto + Double.parseDouble(rset2.getString(2));
+                                            } else {
+                                                monto = monto + (Double.parseDouble(rset2.getString(2)) * 1.16);
+                                            }
+                                            Cantidad = Cantidad + Integer.parseInt(rset2.getString(1));
+                                            //monto = Double.parseDouble(rset2.getString(2));
+                                        }
+                                        con.cierraConexion();
+                                    } catch (Exception e) {
+                                        System.out.println(e.getMessage());
                                     }
-                                    if (Claves.equals("")){
-                                    rset2 = con.consulta("SELECT SUM(F_ExiLot),sum((m.F_Costo*l.F_ExiLot)) as monto FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro");
-                                    }else{
-                                        rset2 = con.consulta("SELECT SUM(F_ExiLot),sum((m.F_Costo*l.F_ExiLot)) as monto FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro where l.F_ClaPro='"+Claves+"'");
-                                    }
-                                    while (rset2.next()) {
-                                    Cantidad = Integer.parseInt(rset2.getString(1));
-                                    monto = Double.parseDouble(rset2.getString(2));
-                                    }
-                                    con.cierraConexion();
-                                } catch (Exception e) {
-                                    System.out.println(e.getMessage());
-                                }
-                            %>
+                                %>
                         </tbody>
                         
                     </table><h3>Total Piezas = <%=formatter.format(Cantidad)%>&nbsp;&nbsp;&nbsp;Monto Total = $<%=formatter2.format(monto)%></h3>

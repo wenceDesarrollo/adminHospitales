@@ -20,10 +20,13 @@
     custom.setDecimalSeparator(',');
     formatter.setDecimalFormatSymbols(custom);
     HttpSession sesion = request.getSession();
-    String usua = "ISEM", Clave = "1",Claves="",clave="",provee="",fecha="",folio="";
-    int existencia=0,cont=0,inventario=0,inventariof=0;
-    ResultSet rset ;
-    ResultSet rset2;
+    String usua = "ISEM", Clave = "1",Claves="",clave="",provee="",fecha="",fechaa="",fechaamov="",CantidadF="",fechamov="",folio="",docmov="",fechak="";
+    String FolioC="", FolioF="";
+    int existencia=0,existencia2=0,cont=0,inventario=0,inventariof=0,cantmov=0,diferencias=0,CantF=0;
+    ResultSet rset,rset_1, rset_fecha, rset_fecha2;
+    ResultSet rset2,rset_reporte;
+    ResultSet rset3, rset3_1;
+    ResultSet rset_fecfac;
     int Cantidad=0;
     double monto=0, montof=0;
     
@@ -72,15 +75,16 @@
             <form action="kardex.jsp" method="post">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Movimiento por Clave&nbsp;&nbsp;&nbsp;Clave:&nbsp;<%=clave%>&nbsp;&nbsp;&nbsp;</h3>
+                    <h3 class="panel-title">Movimiento por Clave&nbsp;&nbsp;&nbsp;Clave:&nbsp;<%=clave%>&nbsp;&nbsp;&nbsp;<a href="kardex_gnr.jsp?clave=<%=clave%>&provee=<%=provee%>">Descargar&nbsp;<label class="glyphicon glyphicon-download-alt"></label></a></h3>
                 </div>
 
                 <div class="panel-footer">
                     <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="datosProv">
                         <thead>
                             <tr>
+                                <td hidden="">Id</td>
                                 <td>Fecha</td>
-                                <td>No. Remisión</td>                                
+                                <td>No. Remisión/ Doc. Salida</td>                                
                                 <td>Inv. Inicial / Movimientos</td>
                                 <td>Ingreso</td>
                                 <td>Egreso</td>
@@ -91,48 +95,115 @@
                             <%
                                 try {
                                     con.conectar();
+                                    con.actualizar("delete FROM tb_fechakardex WHERE F_Clapro='"+clave+"' AND F_Claprov='"+provee+"'");
+                                    con.actualizar("delete FROM tb_reporteclave  WHERE F_Clave='"+clave+"' AND F_Provee='"+provee+"'");
                                     
-                                   rset = con.consulta("SELECT DATE_FORMAT(c.F_FecApl,'%d/%m/%Y') AS fecha,c.F_FolRemi as folio,SUM(c.F_CanCom) as cantidad FROM tb_compra_web c INNER JOIN tb_proveedor p on c.F_ClaOrg=p.F_ClaProve WHERE c.F_ClaPro='"+clave+"' AND p.F_ClaProve='"+provee+"' GROUP BY c.F_FecApl,c.F_FolRemi");
-                                   
-                                    while (rset.next()) {
-                                        cont ++;
+                                    rset_fecfac = con.consulta("SELECT F.F_FecEnt FROM tb_facturavista F INNER JOIN (SELECT F_ClaLot,F_ClaOrg FROM tb_lote GROUP BY F_ClaLot) L ON F.F_ClaLot=L.F_ClaLot WHERE F.F_ClaPro='"+clave+"' AND L.F_ClaOrg='"+provee+"' GROUP BY F.F_FecEnt");
+                                    while(rset_fecfac.next()){
+                                        con.actualizar("insert into tb_fechakardex values(0,'"+rset_fecfac.getString(1)+"','"+clave+"','"+provee+"')");
+                                    }
+                                    
+                                   rset_fecha =  con.consulta(" select c.F_FecApl FROM tb_compra_web c INNER JOIN tb_proveedor p on c.F_ClaOrg=p.F_ClaProve WHERE c.F_ClaPro='"+clave+"' AND p.F_ClaProve='"+provee+"' GROUP BY c.F_FecApl");
+                                    while(rset_fecha.next()){
+                                        con.insertar("insert into tb_fechakardex values(0,'"+rset_fecha.getString(1)+"','"+clave+"','"+provee+"')");
+                                    }
+                                    
+                                    rset_fecha2 =  con.consulta("SELECT F_Fecha FROM tb_fechakardex WHERE F_Clapro='"+clave+"' AND F_Claprov='"+provee+"' GROUP BY F_Fecha ORDER BY F_Fecha ASC");
+                                    while(rset_fecha2.next()){
+                                        fechak = rset_fecha2.getString("F_Fecha");
+                                    rset_1 = con.consulta("SELECT c.F_FolRemi as folio FROM tb_compra_web c WHERE c.F_FecApl='"+fechak+"' AND c.F_ClaPro='"+clave+"' AND c.F_ClaOrg='"+provee+"' GROUP BY c.F_FolRemi");   
+                                        while (rset_1.next()) {
+                                            FolioC = rset_1.getString("folio");
+                                        
+                                   // rset = con.consulta("SELECT DATE_FORMAT(c.F_FecApl,'%d/%m/%Y') AS fecha,c.F_FecApl as fechaa,c.F_FolRemi as folio,SUM(c.F_CanCom) as cantidad FROM tb_compra_web c INNER JOIN tb_proveedor p on c.F_ClaOrg=p.F_ClaProve WHERE c.F_FecApl='"+fechak+"' AND c.F_ClaPro='"+clave+"' AND p.F_ClaProve='"+provee+"' GROUP BY c.F_FecApl,c.F_FolRemi");
+                                      rset = con.consulta("SELECT DATE_FORMAT(c.F_FecApl,'%d/%m/%Y') AS fecha,c.F_FecApl as fechaa,c.F_FolRemi as folio,R.F_Final,SUM(c.F_CanCom) as cantidad FROM tb_compra_web c LEFT JOIN (SELECT F_Final,F_Clave,F_Provee FROM tb_reporteclave ORDER BY F_Id DESC LIMIT 1 ) R ON c.F_ClaPro=R.F_Clave and c.F_ClaOrg=R.F_Provee WHERE c.F_FecApl='"+fechak+"' AND c.F_ClaPro='"+clave+"' AND c.F_ClaOrg='"+provee+"' and c.F_FolRemi ='"+FolioC+"' GROUP BY c.F_FolRemi");   
+                                        while (rset.next()) {
+                                        //cont ++;
+                                        
                                         fecha = rset.getString("fecha");
                                         folio = rset.getString("folio");
                                         existencia = Integer.parseInt(rset.getString("cantidad"));
+                                        existencia2 = Integer.parseInt(rset.getString("cantidad"));
+                                        CantidadF = rset.getString("R.F_Final");
                                         
-                                     for(int x=0; x < cont; x++){
-                                         inventario = inventariof;
-                                         inventariof = inventario + existencia;
-                                         
-                                     }      
-                            %>
+                                        if (CantidadF == null ){
+                                            inventario = 0;
+                                            inventariof = existencia;
+                                        }else{
+                                            CantF = Integer.parseInt(CantidadF);
+                                            inventario = CantF;
+                                            inventariof = existencia + CantF;
+                                        }
+                                        
+                                        /*                                   
+                                        for(int x=0; x < cont; x++){
+                                               inventario = inventariof;
+                                               inventariof = (inventario + existencia) - (cantmov);
+                                        }*/
+                                        con.insertar("insert into tb_reporteclave values(0,'"+fecha+"','"+folio+"','"+inventario+"','"+existencia+"','0','"+inventariof+"','"+clave+"','"+provee+"')");
+                                        cont=0;
+                                        }
+                                        }
+                                        
+                                      rset3_1 = con.consulta("SELECT F.F_ClaDoc AS documento FROM tb_facturavista F INNER JOIN (SELECT F_ClaLot,F_ClaOrg FROM tb_lote  GROUP BY F_ClaLot) L ON F.F_ClaLot=L.F_ClaLot  WHERE F.F_ClaPro='"+clave+"' AND L.F_ClaOrg='"+provee+"' and F.F_FecEnt='"+fechak+"' GROUP BY F.F_ClaDoc");
+                                      while (rset3_1.next()) {
+                                          FolioF = rset3_1.getString("documento");
+                                          
+                                      rset3 = con.consulta("SELECT DATE_FORMAT(F.F_FecEnt,'%d/%m/%Y') as fechamov, F.F_ClaDoc AS documento,R.F_Final, SUM(F.F_CantSur) AS F_CantSur FROM tb_facturavista F INNER JOIN (SELECT F_ClaLot,F_ClaOrg FROM tb_lote  GROUP BY F_ClaLot) L ON F.F_ClaLot=L.F_ClaLot  INNER JOIN (SELECT F_Final,F_Clave,F_Provee FROM tb_reporteclave ORDER BY F_Id DESC LIMIT 1 ) R ON F.F_ClaPro=R.F_Clave AND L.F_ClaOrg=R.F_Provee WHERE F.F_ClaPro='"+clave+"' AND L.F_ClaOrg='"+provee+"' and F.F_FecEnt='"+fechak+"' and F.F_ClaDoc='"+FolioF+"' GROUP BY F.F_ClaDoc");
+                                        while (rset3.next()) {
+                                            fecha = rset3.getString("fechamov");
+                                            folio = rset3.getString("documento");                                            
+                                            existencia2 = Integer.parseInt(rset3.getString("R.F_Final")); 
+                                            cantmov = Integer.parseInt(rset3.getString("F_CantSur"));
+                                            diferencias = existencia2 - cantmov;
+                                            
+                                            con.insertar("insert into tb_reporteclave values(0,'"+fecha+"','"+folio+"','"+existencia2+"','0','"+cantmov+"','"+diferencias+"','"+clave+"','"+provee+"')");
+                                        
+                                        }
+                                        }
+                                    }
+                                    rset_reporte = con.consulta("SELECT F_Id,F_Fecha,F_Doc,F_inv,F_Ingreso,F_Egreso,F_Final FROM tb_reporteclave WHERE F_Clave ='"+clave+"' and F_Provee='"+provee+"' ORDER BY F_Id + 0");
+                                    while(rset_reporte.next()){
+                                        fechaa = rset_reporte.getString("F_Fecha");                                   
+                                        docmov = rset_reporte.getString("F_Doc");
+                                        inventario = Integer.parseInt(rset_reporte.getString("F_inv"));
+                                        existencia = Integer.parseInt(rset_reporte.getString("F_Ingreso"));
+                                        cantmov = Integer.parseInt(rset_reporte.getString("F_Egreso"));
+                                        inventariof = Integer.parseInt(rset_reporte.getString("F_Final"));
+                                        
+                                    System.out.println(docmov);
+                                        %>
 
                             <tr>
-                                <td><%=fecha%></td>
-                                <td><%=folio%></td>                                
+                                <td hidden=""><%=rset_reporte.getString(1)%></td>
+                                <td><%=fechaa%></td>
+                                <td><%=docmov%></td>                                
                                 <td><%=formatter.format(inventario)%></td>                                
                                 <td><%=formatter.format(existencia)%></td>
-                                <td>0</td>     
+                                <td><%=formatter.format(cantmov)%></td>     
                                 <td><%=formatter.format(inventariof)%></td>     
                             </tr>
-                            <%cont=0;;
-                                    }
+                           
+                            <%}
+                                           
+                                   
                                     
                                     
-                                    rset2 = con.consulta("SELECT SUM(F_ExiLot),sum((m.F_Costo*l.F_ExiLot)) as monto FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro INNER JOIN tb_proveedor p on l.F_ClaOrg=p.F_ClaProve where l.F_ClaPro='"+clave+"' and p.F_ClaProve='"+provee+"'");
+                                  /*  rset2 = con.consulta("SELECT SUM(F_ExiLot),sum((m.F_Costo*l.F_ExiLot)) as monto FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro INNER JOIN tb_proveedor p on l.F_ClaOrg=p.F_ClaProve where l.F_ClaPro='"+clave+"' and p.F_ClaProve='"+provee+"'");
                                     
                                     while (rset2.next()) {
                                     Cantidad = Integer.parseInt(rset2.getString(1));
                                     monto = Double.parseDouble(rset2.getString(2));
-                                    }
+                                    }*/
                                     con.cierraConexion();
                                 } catch (Exception e) {
                                     System.out.println(e.getMessage());
                                 }
+    
                             %>
                         </tbody>
                         
-                    </table><h3>Total Piezas = <%=formatter.format(Cantidad)%>&nbsp;&nbsp;&nbsp;Monto Total = $<%=formatter2.format(monto)%></h3>
+                    </table><!--h3>Total Piezas = <%=formatter.format(Cantidad)%>&nbsp;&nbsp;&nbsp;Monto Total = $<%=formatter2.format(monto)%></h3-->
                 </div>
             </div>
             </form>

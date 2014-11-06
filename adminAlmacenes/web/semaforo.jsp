@@ -20,12 +20,12 @@
     custom.setDecimalSeparator(',');
     formatter.setDecimalFormatSymbols(custom);
     HttpSession sesion = request.getSession();
-    String usua = "ISEM", Clave = "1",Claves="",Kardex="";
-    ResultSet rset ;
+    String usua = "ISEM", Clave = "1", Claves = "", Kardex = "";
+    ResultSet rset;
     ResultSet rset2;
-    int Cantidad=0;
-    double monto=0, montof=0;
-    
+    int Cantidad = 0;
+    double monto = 0, montof = 0;
+
     /*if (sesion.getAttribute("nombre") != null) {
      usua = (String) sesion.getAttribute("nombre");
      Clave = (String) session.getAttribute("clave");
@@ -35,7 +35,7 @@
      if (Clave== null){
      Clave="";
      }*/
-    ConectionDB_SAA con = new ConectionDB_SAA();
+    ConectionDB_LermaServer con = new ConectionDB_LermaServer();
 %>
 <html>
     <head>
@@ -74,23 +74,14 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Men&uacute; de Opciones <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
-                                    <li><a href="semaforo.jsp">Semaforización</a></li>
-                                    <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
+                                    <li><a href="clave.jsp">Concentrado por Clave</a></li>                                
+                                    <li><a href="entregas.jsp">Entrega a Distribuidores</a></li>
                                     <li><a href="exist.jsp">Existencias en CEDIS</a></li>
-                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>
+                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>                                
                                     <li><a href="historialOC.jsp">Historial OC</a></li>
-                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="ordenesCompra.jsp">Órdenes de Compra</a></li>
-                                    <!--li><a href="rep.jsp">Reporteador</a></li>
-                                    <!--li><a href="requerimiento.jsp">Carga de Requerimiento</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="medicamento.jsp">Catálogo de Medicamento</a></li>
-                                    <li><a href="catalogo.jsp">Catálogo de Proveedores</a></li>
-                                    <li><a href="marcas.jsp">Catálogo de Marcas</a></li>
-                                    <li><a href="reimpresion.jsp">Reimpresión de Compras</a></li>
-                                    <li><a href="reimp_factura.jsp">Reimpresión de Facturas</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="http://192.168.2.170:8081/UbicacionesConsolidado" target="_blank">Ubicaciones</a></li-->
+                                    <li><a href="factura.jsp">Recibo en Almac&eacute;n</a></li>
+                                    <li><a href="semaforo.jsp">Semaforización</a></li>
                                 </ul>
                             </li>
                             <!--li class="dropdown">
@@ -125,89 +116,95 @@
         </div>
         <div class="container">
             <form action="semaforo.jsp" method="post">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Semaforización
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<!--input type="text" name="clave" id="clave" placeholder="Clave" > <button class="btn btn-sm btn-success" id="btn-buscar2">BUSCAR&nbsp;<label class="glyphicon glyphicon-search"></label></button-->&nbsp;&nbsp;&nbsp;<input type="checkbox" name="kardex" id="kardex" value="1" onchange="this.form.submit();" /> Menor a 9 Meses&nbsp;&nbsp;&nbsp;<input type="checkbox" name="kardex" id="kardex" value="2" onchange="this.form.submit();" /> Entre 9 y 12 Meses&nbsp;&nbsp;&nbsp;<input type="checkbox" name="kardex" id="kardex" value="3" onchange="this.form.submit();" />Mayor a 12 Meses <!--a href="gnr.jsp">Descargar<label class="glyphicon glyphicon-download"></label></a-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="semaforo.jsp">Actualizar<label class="glyphicon glyphicon-refresh"></label></a></h3>
-                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Semaforización
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<!--input type="text" name="clave" id="clave" placeholder="Clave" > <button class="btn btn-sm btn-success" id="btn-buscar2">BUSCAR&nbsp;<label class="glyphicon glyphicon-search"></label></button-->&nbsp;&nbsp;&nbsp;<input type="checkbox" name="kardex" id="kardex" value="1" onchange="this.form.submit();" /> Menor a 9 Meses&nbsp;&nbsp;&nbsp;<input type="checkbox" name="kardex" id="kardex" value="2" onchange="this.form.submit();" /> Entre 9 y 12 Meses&nbsp;&nbsp;&nbsp;<input type="checkbox" name="kardex" id="kardex" value="3" onchange="this.form.submit();" />Mayor a 12 Meses <!--a href="gnr.jsp">Descargar<label class="glyphicon glyphicon-download"></label></a-->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="semaforo.jsp">Actualizar<label class="glyphicon glyphicon-refresh"></label></a></h3>
+                    </div>
 
-                <div class="panel-footer">
-                    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="datosProv">
-                        <thead>
-                            <tr>
-                                <td>Clave</td>
-                                <td>Descripción</td>
-                                <td>Lote</td>
-                                <td>Caducidad</td>                                
-                                <td>Cantidad</td>
-                                <td>Costo U.</td>
-                                <td>Monto</td>
-                                <td>Semaforización</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <%
-                                try {
-                                    con.conectar();
-                                   Kardex = request.getParameter("kardex");
-                                                                      
-                                   if (Kardex.equals("1")){
-                                    rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, SUM(F_ExiLot), (m.F_Costo*l.F_ExiLot) as monto,m.F_Costo FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 AND F_FecCad < DATE_ADD(CURDATE(), INTERVAL 270 DAY) GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad");   
-                                   }else if (Kardex.equals("2")){
-                                       rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, SUM(F_ExiLot), (m.F_Costo*l.F_ExiLot) as monto,m.F_Costo FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 AND F_FecCad BETWEEN DATE_ADD(CURDATE(), INTERVAL 271 DAY) AND DATE_ADD(CURDATE(), INTERVAL 365 DAY) GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad");
-                                   }else{
-                                       rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, SUM(F_ExiLot), (m.F_Costo*l.F_ExiLot) as monto,m.F_Costo FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 AND F_FecCad > DATE_ADD(CURDATE(), INTERVAL 365 DAY) GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad");
-                                   }
-                                    while (rset.next()) {
-                            %>
-                            <tr>
-                                <td><%=rset.getString(1)%></td>
-                                <td><%=rset.getString(2)%></td>
-                                <td><%=rset.getString(3)%></td>
-                                <td><%=rset.getString(4)%></td>
-                                <td><%=formatter.format(rset.getInt(5))%></td>
-                                <td><%=formatter2.format(rset.getDouble(7))%></td>
-                                <td><%=formatter2.format(rset.getDouble(6))%></td>
-                                <%if (Kardex.equals("1")){%>
-                                
-                                <td><span class="label label-danger">Menor 9 Meses</span></td>
-                                
-                                <%}else if (Kardex.equals("2")){%>
-                                
-                                <td><span class="label label-warning">Entre 9 y 12 Meses</span></td>
-                                
-                                <%}else if (Kardex.equals("3")){%>
-                                
-                                <td><span class="label label-success">Mayor a 12 Meses</span></td>
-                                <%}else{%>
-                                <td><span class="label label-success"> Mayor a 12 Meses</span></td>
-                                <%}%>
-                                
-                                
-                            </tr>
-                            <%
+                    <div class="panel-footer">
+                        <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="datosProv">
+                            <thead>
+                                <tr>
+                                    <td>Clave</td>
+                                    <td>Descripción</td>
+                                    <td>Lote</td>
+                                    <td>Caducidad</td>                                
+                                    <td>Cantidad</td>
+                                    <td>Costo U.</td>
+                                    <td>Monto</td>
+                                    <td>Semaforización</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <%
+                                    try {
+                                        con.conectar();
+                                        Kardex = request.getParameter("kardex");
+
+                                        if (Kardex.equals("1")) {
+                                            rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, SUM(F_ExiLot), (m.F_Costo*SUM(l.F_ExiLot)) as monto,m.F_Costo FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 AND F_FecCad < DATE_ADD(CURDATE(), INTERVAL 9 MONTH) GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad");
+                                        } else if (Kardex.equals("2")) {
+                                            rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, SUM(F_ExiLot), (m.F_Costo*SUM(l.F_ExiLot)) as monto,m.F_Costo FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 AND F_FecCad BETWEEN DATE_ADD(CURDATE(), INTERVAL 9 MONTH) AND DATE_ADD(CURDATE(), INTERVAL 12 MONTH) GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad");
+                                        } else {
+                                            rset = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, SUM(F_ExiLot), (m.F_Costo*SUM(l.F_ExiLot)) as monto,m.F_Costo FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 AND F_FecCad > DATE_ADD(CURDATE(), INTERVAL 12 MONTH) GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad");
+                                        }
+                                        while (rset.next()) {
+                                %>
+                                <tr>
+                                    <td><%=rset.getString(1)%></td>
+                                    <td><%=rset.getString(2)%></td>
+                                    <td><%=rset.getString(3)%></td>
+                                    <td><%=rset.getString(4)%></td>
+                                    <td><%=formatter.format(rset.getInt(5))%></td>
+                                    <td><%=formatter2.format(rset.getDouble(7))%></td>
+                                    <td><%=formatter2.format(rset.getDouble(6))%></td>
+                                    <%if (Kardex.equals("1")) {%>
+
+                                    <td><span class="label label-danger">Menor 9 Meses</span></td>
+
+                                    <%} else if (Kardex.equals("2")) {%>
+
+                                    <td><span class="label label-warning">Entre 9 y 12 Meses</span></td>
+
+                                    <%} else if (Kardex.equals("3")) {%>
+
+                                    <td><span class="label label-success">Mayor a 12 Meses</span></td>
+                                    <%} else {%>
+                                    <td><span class="label label-success"> Mayor a 12 Meses</span></td>
+                                    <%}%>
+
+
+                                </tr>
+                                <%
+                                        }
+                                        if (Kardex.equals("1")) {
+                                            rset2 = con.consulta("SELECT SUM(F_ExiLot) as suma,sum((m.F_Costo*l.F_ExiLot)) as monto, l.F_ClaPro FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro where F_FecCad < DATE_ADD(CURDATE(), INTERVAL 9 MONTH) group by l.F_ClaPro");
+                                        } else if (Kardex.equals("2")) {
+                                            rset2 = con.consulta("SELECT SUM(F_ExiLot) as suma,sum((m.F_Costo*l.F_ExiLot)) as monto, l.F_ClaPro FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro where F_FecCad BETWEEN DATE_ADD(CURDATE(), INTERVAL 9 MONTH) AND DATE_ADD(CURDATE(), INTERVAL 12 MONTH) group by l.F_ClaPro");
+                                        } else {
+                                            rset2 = con.consulta("SELECT SUM(F_ExiLot) as suma,sum((m.F_Costo*l.F_ExiLot)) as monto, l.F_ClaPro FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro where F_FecCad > DATE_ADD(CURDATE(), INTERVAL 12 MONTH) group by l.F_ClaPro");
+                                        }
+                                        while (rset2.next()) {
+                                            double monto1 = 0;
+                                            if (rset2.getFloat("F_ClaPro") < 9999.0) {
+                                                monto1 = Double.parseDouble(rset2.getString("monto"));
+                                            } else {
+                                                monto1 = (Double.parseDouble(rset2.getString("monto")) * 1.16);
+                                            }
+                                            Cantidad = Cantidad + Integer.parseInt(rset2.getString("suma"));
+                                            monto = monto + monto1;
+                                        }
+                                        con.cierraConexion();
+                                    } catch (Exception e) {
+                                        System.out.println(e.getMessage());
                                     }
-                                    if (Kardex.equals("1")){
-                                    rset2 = con.consulta("SELECT SUM(F_ExiLot),sum((m.F_Costo*l.F_ExiLot)) as monto FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro where F_FecCad < DATE_ADD(CURDATE(), INTERVAL 270 DAY)");
-                                    }else if (Kardex.equals("2")){
-                                    rset2 = con.consulta("SELECT SUM(F_ExiLot),sum((m.F_Costo*l.F_ExiLot)) as monto FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro where F_FecCad BETWEEN DATE_ADD(CURDATE(), INTERVAL 271 DAY) AND DATE_ADD(CURDATE(), INTERVAL 365 DAY)");
-                                    }else{
-                                    rset2 = con.consulta("SELECT SUM(F_ExiLot),sum((m.F_Costo*l.F_ExiLot)) as monto FROM tb_lote l INNER JOIN tb_medica m on l.F_ClaPro=m.F_ClaPro where F_FecCad > DATE_ADD(CURDATE(), INTERVAL 365 DAY)");
-                                    }
-                                    while (rset2.next()) {
-                                    Cantidad = Integer.parseInt(rset2.getString(1));
-                                    monto = Double.parseDouble(rset2.getString(2));
-                                    }
-                                    con.cierraConexion();
-                                } catch (Exception e) {
-                                    System.out.println(e.getMessage());
-                                }
-                            %>
-                        </tbody>
-                        
-                    </table><h3>Total Piezas = <%=formatter.format(Cantidad)%>&nbsp;&nbsp;&nbsp;Monto Total = $<%=formatter2.format(monto)%></h3>
+                                %>
+                            </tbody>
+
+                        </table><h3>Total Piezas = <%=formatter.format(Cantidad)%>&nbsp;&nbsp;&nbsp;Monto Total = $<%=formatter2.format(monto)%></h3>
+                    </div>
                 </div>
-            </div>
             </form>
         </div>
         <br><br><br>
@@ -232,9 +229,9 @@
 <script src="js/dataTables.bootstrap.js"></script>
 <script src="js/bootstrap-datepicker.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#datosProv').dataTable();
-    });
+                                $(document).ready(function() {
+                                    $('#datosProv').dataTable();
+                                });
 </script>
 <script>
 
@@ -347,12 +344,11 @@
         frm = obj.form;
         for (i = 0; i < frm.elements.length; i++)
             if (frm.elements[i] == obj)
-            
-        /*ACA ESTA EL CAMBIO*/
-        if (frm.elements[i + 1].disabled == true)
-            tabular(e, frm.elements[i + 1]);
-        else
-            frm.elements[i + 1].focus();
+                /*ACA ESTA EL CAMBIO*/
+                if (frm.elements[i + 1].disabled == true)
+                    tabular(e, frm.elements[i + 1]);
+                else
+                    frm.elements[i + 1].focus();
         return false;
     }
 

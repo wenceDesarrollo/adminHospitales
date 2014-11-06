@@ -25,7 +25,7 @@
             <a href="http://166.78.128.202:8080/SAA2/indexIsem.jsp" class="btn btn-block btn-danger btn-lg" target="_blank">Captura de Órdenes de Compra</a>
             </div>
             <br/>
-            <div style="padding-top: 15%" class="col-sm-6 col-sm-offset-3">
+            <div style="padding-top: 15%" class="col-sm-2 col-sm-offset-5">
                 <img src="imagenes/Logo GNK claro2.jpg" width="100%" />
             <br/>
         </div>

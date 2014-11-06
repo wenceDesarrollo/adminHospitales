@@ -7,173 +7,132 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns:v="urn:schemas-microsoft-com:vml"
-xmlns:o="urn:schemas-microsoft-com:office:office"
-xmlns:x="urn:schemas-microsoft-com:office:excel"
-xmlns="http://www.w3.org/TR/REC-html40">
-<% 
+      xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:x="urn:schemas-microsoft-com:office:excel"
+      xmlns="http://www.w3.org/TR/REC-html40">
+    <%
 
-ConectionDB_SAA con = new ConectionDB_SAA();
-NumberFormat nf1 = NumberFormat.getInstance(Locale.US); 
+        ConectionDB_LermaServer con = new ConectionDB_LermaServer();
+        NumberFormat nf1 = NumberFormat.getInstance(Locale.US);
+        DecimalFormat formatter2 = new DecimalFormat("#,###,###.##");
 
+        String totPzs = "";
+        String totMon = "";
+        String totPzsMed = "";
+        String totMonMed = "";
+        String totPzsMat = "";
+        String totMonMat = "";
+        String fecha_1 = "";
+        String fecha_2 = "";
+        String unidad_jv = "";
+        int total_pzs = 0, total_medi = 0, total_cura = 0;
+        double total_mon_medi = 0.0, total_mon_cura = 0.0, total_montos = 0.0, total_tot = 0.0, montos_res = 0.0;
+        String ixt_cad = "", ixt_cad2 = "";
+        int cant_pzs = 0, ixt_uni = 0;
+        double cant_totMon = 0.0, ixt_costo = 0.0;
+        String only = "";
 
+        try {
+            unidad_jv = request.getParameter("id_cs");
+            fecha_1 = request.getParameter("fecha_1_vi");
+            fecha_2 = request.getParameter("fecha_2_vi");
+        } catch (Exception e) {
+        }
+        String but = "r";
 
-String totPzs="";
-String totMon="";
-String totPzsMed="";
-String totMonMed="";
-String totPzsMat="";
-String totMonMat="";
-String fecha_1= "";
-String fecha_2= "";
-String unidad_jv="";
-int total_pzs=0,total_medi=0,total_cura=0;
-double total_mon_medi=0.0,total_mon_cura=0.0, total_montos=0.0, total_tot=0.0, montos_res=0.0;
-String ixt_cad="",ixt_cad2="";
-int cant_pzs=0, ixt_uni=0;
-double cant_totMon=0.0,ixt_costo=0.0;
-String only="";
+        response.setContentType("application/vnd.ms-excel");
+        response.setHeader("Content-Disposition", "attachment; filename=Reporte Existencias en Cedis.xls");
+        //ingresar un try y realizar una sola conexión
+        try {
+            con.conectar();
+            ResultSet rset = con.consulta("SELECT  SUM(F_ExiLot) FROM tb_lote ");
+            while (rset.next()) {
+                totPzs = rset.getString("SUM(F_ExiLot)");
+            }
 
-	try {
-		unidad_jv = request.getParameter("id_cs");       			   
-		fecha_1 = request.getParameter("fecha_1_vi");       			   
-		fecha_2 = request.getParameter("fecha_2_vi");       			   
-        } catch (Exception e) { }
-String but="r";
-	  
+    %>
+    <head>
+    </head>
 
-response.setContentType("application/vnd.ms-excel");
-response.setHeader("Content-Disposition","attachment; filename=Reporte Existencias en Cedis.xls");
+    <body link=blue vlink=purple>
 
+        <table border="1">
 
-//ingresar un try y realizar una sola conexión
-    try{
-       con.conectar(); 
-       ResultSet rset = con.consulta("SELECT  SUM(F_ExiLot) FROM tb_lote ");
-       while (rset.next()) {
-        totPzs=rset.getString("SUM(F_ExiLot)");   
-       }
-				  
-%>
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
-<meta name=ProgId content=Excel.Sheet>
-<meta name=Generator content="Microsoft Excel 12">
-<link id=Main-File rel=Main-File href="../Libro1.htm">
-<link rel=File-List href=filelist.xml>
-<!--link rel=Stylesheet href=stylesheet.css-->
-<style> 
-<!--table
-	{mso-displayed-decimal-separator:"\.";
-	mso-displayed-thousand-separator:"\,";}
-@page
-	{margin:.75in .7in .75in .7in;
-	mso-header-margin:.3in;
-	mso-footer-margin:.3in;
-	mso-page-orientation:landscape;}
-.style1 {color: #FF0000}
--->
-</style>
-<![if !supportTabStrip]><script language="JavaScript"> 
-<!--
-function fnUpdateTabs()
- {
-  if (parent.window.g_iIEVer>=4) {
-   if (parent.document.readyState=="complete"
-    && parent.frames['frTabs'].document.readyState=="complete")
-   parent.fnSetActiveSheet(0);
-  else
-   window.setTimeout("fnUpdateTabs();",150);
- }
-}
- 
-if (window.name!="frSheet")
- window.location.replace("../Libro1.htm");
-else
- fnUpdateTabs();
-//-->
-</script>
-<![endif]>
-</head>
- 
-<body link=blue vlink=purple>
- 
-<table border=0 cellpadding=0 cellspacing=0 width=439 style='border-collapse:
- collapse;table-layout:fixed;width:330pt'>
- <col width=120 style='mso-width-source:userset;mso-width-alt:4388;width:90pt'>
- <col width=117 style='mso-width-source:userset;mso-width-alt:4278;width:88pt'>
- <col width=101 span=2 style='mso-width-source:userset;mso-width-alt:3693;
- width:76pt'>
- 
- <tr height=20 style='height:15.0pt'>
-  <td height=20 style='height:15.0pt'>Información</td>
-  <td colspan=2 style='mso-ignore:colspan'></td>
- </tr>
- <tr height=20 style='height:15.0pt'>
-  <td height=20 style='height:15.0pt'>Total de Piezas:</td>
-  <%total_pzs=Integer.parseInt(totPzs);%>
-  <td class=xl72 align=right><%=nf1.format(total_pzs)%></td>
-  <td  style='mso-ignore:colspan'></td>
- </tr>
- <tr height=20 style='height:15.0pt'>
-  <td height=20 style='height:15.0pt'>&nbsp;</td>
-  <td class=xl73 align=right>&nbsp;</td>
-  <td style='mso-ignore:colspan'></td>
- </tr>
+            <tr  >
+                <td  >Información</td>
+                <td colspan=2 style='mso-ignore:colspan'></td>
+            </tr>
+            <tr  >
+                <td  >Total de Piezas:</td>
+                <%total_pzs = Integer.parseInt(totPzs);%>
+                <td class=xl72 align=right><%=nf1.format(total_pzs)%></td>
+                <td  style='mso-ignore:colspan'></td>
+            </tr>
+            <tr  >
+                <td  >&nbsp;</td>
+                <td class=xl73 align=right>&nbsp;</td>
+                <td style='mso-ignore:colspan'></td>
+            </tr>
 
- <tr height=20 style='height:15.0pt'>
-  <td height=20 colspan=3 style='height:15.0pt;mso-ignore:colspan'></td>
- </tr>
- <%
-        ResultSet rset2 = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, l.F_Ubica, l.F_Cb, SUM(F_ExiLot), u.F_DesUbi FROM tb_lote l, tb_medica m, tb_ubica u WHERE m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad,l.F_Ubica, l.F_Cb, u.F_DesUbi");
-         
- %>
- <tr height=20 style='height:15.0pt'>
-  <td height=20 style='height:15.0pt;mso-ignore:colspan'>Clave</td>
-  <td class=xl66>Descripción</td>
-  <td class=xl66>Lote</td>
-  <td class=xl66>Caducidad</td>
-  <td class=xl66>Ubicacion</td>
-  <td class=xl66>Cantidad</td>
- </tr>
- <tr height=20 style='height:15.0pt'>
- 
- <%
-                  while (rset2.next()) {
-                   
-					ixt_cad=rset2.getString("SUM(F_ExiLot)");
-					ixt_uni = Integer.parseInt(ixt_cad); 
- %>
-  <td height=20 class=xl75 style='height:15.0pt'><%=rset2.getString("l.F_ClaPro")%></td>
-  <td height=20 class=xl75 style='height:15.0pt'><%=rset2.getString("m.F_DesPro")%></td>
-  <td height=20 class=xl75 style='height:15.0pt'>'<%=rset2.getString("l.F_ClaLot")%></td>
-  <td height=20 class=xl75 style='height:15.0pt'><%=rset2.getString("F_FecCad")%></td>
-  <td height=20 class=xl75 style='height:15.0pt'><%=rset2.getString("u.F_DesUbi")%></td>
-  <td class=xl68><div align="center"><%=nf1.format(ixt_uni)%></div></td>
-  
- </tr>
- <% } %>
+            <tr  >
+                <td  colspan=3 style='height:15.0pt;mso-ignore:colspan'></td>
+            </tr>
+            <%
+                ResultSet rset2 = con.consulta("SELECT l.F_ClaPro, m.F_DesPro, l.F_ClaLot, DATE_FORMAT(l.F_FecCad, '%d/%m/%Y') AS F_FecCad, l.F_Ubica, l.F_Cb, SUM(F_ExiLot), u.F_DesUbi,(m.F_Costo*SUM(l.F_ExiLot)) as monto,m.F_Costo, F_DesMar FROM tb_marca mar, tb_lote l, tb_medica m, tb_ubica u WHERE mar.F_ClaMar = l.F_ClaMar and m.F_ClaPro = l.F_ClaPro AND l.F_Ubica = u.F_ClaUbi AND F_ExiLot != 0 GROUP BY l.F_ClaPro,l.F_ClaLot,l.F_FecCad,l.F_Ubica, l.F_Cb, u.F_DesUbi");
 
- 
-  
-  
- 
- <![if supportMisalignedColumns]>
- <tr height=0 style='display:none'>
-  <td width=120 style='width:90pt'></td>
-  <td width=117 style='width:88pt'></td>
-  <td width=101 style='width:76pt'></td>
-  <td width=101 style='width:76pt'></td>
- </tr>
- <![endif]>
-</table>
- 
-</body>
- 
+            %>
+            <tr  >
+                <td  style='height:15.0pt;mso-ignore:colspan'>Clave</td>
+                <td >Descripción</td>
+                <td >Lote</td>
+                <td >Caducidad</td>
+                <td >Ubicacion</td>
+                <td >Marca</td>
+                <td >Cantidad</td>
+                <td >Costo U.</td>
+                <td >Monto</td>
+            </tr>
+            <tr  >
+
+                <%     while (rset2.next()) {
+
+                        ixt_cad = rset2.getString("SUM(F_ExiLot)");
+                        ixt_uni = Integer.parseInt(ixt_cad);
+                        double monto1 = 0;
+                        System.out.println(rset2.getString(1));
+                        if (rset2.getInt("F_ClaPro") < 9999) {
+                            monto1 = Double.parseDouble(rset2.getString("monto"));
+                        } else {
+                            monto1 = (Double.parseDouble(rset2.getString("monto")) * 1.16);
+                        }
+                %>
+                <td  class=xl75 ><%=rset2.getString("l.F_ClaPro")%></td>
+                <td  class=xl75 ><%=rset2.getString("m.F_DesPro")%></td>
+                <td  class=xl75 style='height:15.0pt;mso-number-format:"@"'><%=rset2.getString("l.F_ClaLot")%></td>
+                <td  class=xl75 ><%=rset2.getString("F_FecCad")%></td>
+                <td  class=xl75 ><%=rset2.getString("u.F_DesUbi")%></td>
+                <td  class=xl75 ><%=rset2.getString("F_DesMar")%></td>
+                <td class=xl68><div align="center"><%=nf1.format(ixt_uni)%></div></td>
+                <td class=xl68 style='mso-number-format:"#,##0.00"'><div align="center"><%=rset2.getDouble("m.F_Costo")%></div></td>
+                <td class=xl68 style='mso-number-format:"#,##0.00"'><div align="center"><%=monto1%></div></td>
+
+            </tr>
+            <% } %>
+            <tr height=0 style='display:none'>
+                <td width=120 style='width:90pt'></td>
+                <td width=117 style='width:88pt'></td>
+                <td width=101 style='width:76pt'></td>
+                <td width=101 style='width:76pt'></td>
+            </tr>
+        </table>
+
+    </body>
+
 </html>
 <%
- con.cierraConexion();
- } catch (Exception e) {
-     System.out.println(e.getMessage());
- }
-                                
+        con.cierraConexion();
+    } catch (Exception e) {
+        System.out.println(e.getMessage());
+    }
+
 %>

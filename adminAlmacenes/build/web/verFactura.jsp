@@ -4,6 +4,8 @@
     Author     : Americo
 --%>
 
+<%@page import="java.text.DecimalFormatSymbols"%>
+<%@page import="java.text.DecimalFormat"%>
 <%@page import="java.sql.ResultSet"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="conn.*" %>
@@ -12,7 +14,13 @@
 <%java.text.DateFormat df2 = new java.text.SimpleDateFormat("yyyy-MM-dd"); %>
 <%java.text.DateFormat df3 = new java.text.SimpleDateFormat("dd/MM/yyyy"); %>
 <%
-
+    DecimalFormat formatter = new DecimalFormat("#,###,###");
+    DecimalFormat formatterDecimal = new DecimalFormat("#,###,##0.00");
+    DecimalFormatSymbols custom = new DecimalFormatSymbols();
+    custom.setDecimalSeparator('.');
+    custom.setGroupingSeparator(',');
+    formatter.setDecimalFormatSymbols(custom);
+    formatterDecimal.setDecimalFormatSymbols(custom);
     HttpSession sesion = request.getSession();
     String usua = "";
     if (sesion.getAttribute("nombre") != null) {
@@ -20,7 +28,7 @@
     } else {
         //response.sendRedirect("index.jsp");
     }
-    ConectionDB_SAA con = new ConectionDB_SAA();
+    ConectionDB_LermaServer con = new ConectionDB_LermaServer();
 
     String fol_gnkl = "", fol_remi = "", orden_compra = "", fecha = "";
     try {
@@ -125,14 +133,31 @@
                     try {
                         con.conectar();
                         try {
-                            ResultSet rset = con.consulta("SELECT F_NomCli,DATE_FORMAT(F_FecEnt,'%d/%m/%Y') AS F_FecEnt,F_ClaDoc,F_ClaPro,F_DesPro,F_ClaLot,DATE_FORMAT(F_FecCad,'%d/%m/%Y') AS F_FecCad,F_CantReq,F_CantSur,F_Costo,F_Iva,F_Monto, F_Ubicacion FROM tb_facturavista WHERE F_ClaDoc='" + request.getParameter("fol_gnkl") + "' GROUP BY F_NomCli");
+                            ResultSet rset = con.consulta("SELECT F_NomCli,F_FecEnt,F_ClaDoc,F_ClaPro,F_DesPro,F_ClaLot,DATE_FORMAT(F_FecCad,'%d/%m/%Y') AS F_FecCad,F_CantReq,F_CantSur,F_Costo,F_Iva,F_Monto, F_Ubicacion FROM facturas WHERE F_ClaDoc='" + request.getParameter("fol_gnkl") + "' GROUP BY F_NomCli");
                             while (rset.next()) {
                 %>
                 <h4>Cliente: <%=rset.getString(1)%></h4>
                 <h4>Fecha de Entrega: <%=rset.getString(2)%></h4>
-                <h4>Factura: <%=rset.getString(3)%></h4>
+                <h4>Factura: <%=rset.getString(3)%></h4><%
+                    int req = 0, sur = 0;
+                    Double imp = 0.0;
+                    ResultSet rset2 = con.consulta("SELECT F_NomCli,F_FecEnt,F_ClaDoc,F_ClaPro,F_DesPro,F_ClaLot,DATE_FORMAT(F_FecCad,'%d/%m/%Y') AS F_FecCad,F_CantReq,F_CantSur,F_Costo,F_Iva,F_Monto, F_Ubicacion FROM facturas WHERE F_ClaDoc='" + request.getParameter("fol_gnkl") + "'");
+                    while (rset2.next()) {
+                        req = req + rset2.getInt("F_CantReq");
+                        sur = sur + rset2.getInt("F_CantSur");
+                        imp = imp + rset2.getDouble("F_Monto");
+                        System.out.println(req);
+                    }
+                %>
+
+                <div class="row">
+                    <h5 class="col-sm-3">Total Solicitado: <%=formatter.format(req)%></h5>
+                    <h5 class="col-sm-3">Total Surtido: <%=formatter.format(sur)%></h5>
+                    <h5 class="col-sm-3">Total Importe: $ <%=formatterDecimal.format(imp)%></h5>
+                </div>
                 <%
                             }
+
                         } catch (Exception e) {
 
                         }
@@ -142,20 +167,18 @@
                     }
                 %>
                 <div class="text-right">
-                    <a href="factura.jsp" class="btn btn-default">Regresar</a>
+                    <a href="entregas.jsp" class="btn btn-default">Regresar</a>
                 </div>
                 <br />
                 <div class="panel panel-primary">
                     <div class="panel-body">
-                        <table class="table table-bordered table-striped" id="datosCompras">
+                        <table class="table table-bordered table-striped table-condensed" id="datosCompras">
                             <thead>
                                 <tr>
                                     <td>Clave</td>
-                                    <td>Descripción</td>
                                     <td>Lote</td>
                                     <td>Caducidad</td>
                                     <td>Req.</td>
-                                    <td>Ubicación</td>
                                     <td>Ent.</td>
                                     <td>Costo U</td>
                                     <td>IVA</td>
@@ -167,20 +190,18 @@
                                     try {
                                         con.conectar();
                                         try {
-                                            ResultSet rset = con.consulta("SELECT F_NomCli,DATE_FORMAT(F_FecEnt,'%d/%m/%Y') AS F_FecEnt,F_ClaDoc,F_ClaPro,F_DesPro,F_ClaLot,DATE_FORMAT(F_FecCad,'%d/%m/%Y') AS F_FecCad,F_CantReq,F_CantSur,F_Costo,F_Iva,F_Monto, F_Ubicacion FROM tb_facturavista WHERE F_ClaDoc='" + request.getParameter("fol_gnkl") + "' GROUP BY F_IdFact");
+                                            ResultSet rset = con.consulta("SELECT F_NomCli,F_FecEnt,F_ClaDoc,F_ClaPro,F_DesPro,F_ClaLot,F_FecCad,SUM(F_CantReq),SUM(F_CantSur),F_Costo,F_Iva,sum(F_Monto), F_Ubicacion FROM facturas  WHERE F_ClaDoc='" + request.getParameter("fol_gnkl") + "' GROUP BY F_ClaPro");
                                             while (rset.next()) {
                                 %>
                                 <tr>
-                                    <td><%=rset.getString(4)%></td>
-                                    <td><%=rset.getString(5)%></td>
+                                    <td><a href="#" data-toggle="tooltip" data-placement="bottom" title="<%=rset.getString(5)%>"><%=rset.getString(4)%></a></td>
                                     <td><%=rset.getString(6)%></td>
                                     <td><%=rset.getString(7)%></td>
-                                    <td><%=rset.getString(8)%></td>
-                                    <td><%=rset.getString(13)%></td>
-                                    <td><%=rset.getString(9)%></td>
-                                    <td><%=rset.getString(10)%></td>
-                                    <td><%=rset.getString(11)%></td>
-                                    <td><%=rset.getString(12)%></td>
+                                    <td><%=formatterDecimal.format(rset.getInt(8))%></td>
+                                    <td><%=formatterDecimal.format(rset.getInt(9))%></td>
+                                    <td>$ <%=formatterDecimal.format(rset.getDouble(10))%></td>
+                                    <td>$ <%=formatterDecimal.format(rset.getDouble(11))%></td>
+                                    <td>$ <%=formatterDecimal.format(rset.getDouble(12))%></td>
                                 </tr>
                                 <%
                                             }
@@ -220,6 +241,9 @@
 <script src="js/jquery.dataTables.js"></script>
 <script src="js/dataTables.bootstrap.js"></script>
 <script>
+    $(function() {
+        $(document).tooltip();
+    });
     $(document).ready(function() {
         $('#datosCompras').dataTable();
     });

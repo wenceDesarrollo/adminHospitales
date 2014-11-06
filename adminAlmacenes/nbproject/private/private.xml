@@ -3,11 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/Amerikillo/GitHub/adminHospitales/adminAlmacenes/web/historialOC.jsp</file>
-            <file>file:/Users/Amerikillo/GitHub/adminHospitales/adminAlmacenes/src/java/in/co/sneh/controller/FileUploadServlet.java</file>
-            <file>file:/Users/Amerikillo/GitHub/adminHospitales/adminAlmacenes/src/java/in/co/sneh/model/FileUpload.java</file>
-            <file>file:/Users/Amerikillo/GitHub/adminHospitales/adminAlmacenes/web/subirDoctos.jsp</file>
-            <file>file:/Users/Amerikillo/GitHub/adminHospitales/adminAlmacenes/web/WEB-INF/web.xml</file>
+            <file>file:/C:/Users/Americo/Documents/GitHub/adminHospitales/adminAlmacenes/web/indexMain.jsp</file>
+            <file>file:/C:/Users/Americo/Documents/GitHub/adminHospitales/adminAlmacenes/web/clave.jsp</file>
+            <file>file:/C:/Users/Americo/Documents/GitHub/adminHospitales/adminAlmacenes/web/entregas.jsp</file>
+            <file>file:/C:/Users/Americo/Documents/GitHub/adminHospitales/adminAlmacenes/web/exist.jsp</file>
+            <file>file:/C:/Users/Americo/Documents/GitHub/adminHospitales/adminAlmacenes/web/Entrega.jsp</file>
+            <file>file:/C:/Users/Americo/Documents/GitHub/adminHospitales/adminAlmacenes/web/historialOC.jsp</file>
+            <file>file:/C:/Users/Americo/Documents/GitHub/adminHospitales/adminAlmacenes/web/ordenesCompra.jsp</file>
+            <file>file:/C:/Users/Americo/Documents/GitHub/adminHospitales/adminAlmacenes/web/factura.jsp</file>
+            <file>file:/C:/Users/Americo/Documents/GitHub/adminHospitales/adminAlmacenes/web/semaforo.jsp</file>
         </group>
     </open-files>
 </project-private>

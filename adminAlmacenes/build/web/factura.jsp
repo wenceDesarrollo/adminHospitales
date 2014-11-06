@@ -20,7 +20,7 @@
     } else {
         //response.sendRedirect("index.jsp");
     }
-    ConectionDB_SAA con = new ConectionDB_SAA();
+    ConectionDB_LermaServer con = new ConectionDB_LermaServer();
 
     String fol_gnkl = "", fol_remi = "", orden_compra = "", fecha = "";
     try {
@@ -92,22 +92,14 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Men&uacute; de Opciones <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="indexMain.jsp">Men&uacute; Principal</a></li>
-                                    <li><a href="entregas.jsp">Entrega a Proveedores</a></li>
+                                    <li><a href="clave.jsp">Concentrado por Clave</a></li>                                
+                                    <li><a href="entregas.jsp">Entrega a Distribuidores</a></li>
                                     <li><a href="exist.jsp">Existencias en CEDIS</a></li>
-                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>
+                                    <li><a href="Entrega.jsp">Fecha de Recibo en CEDIS</a></li>                                
                                     <li><a href="historialOC.jsp">Historial OC</a></li>
-                                    <li><a href="factura.jsp">Ingresos en Almac&eacute;n</a></li>
                                     <li><a href="ordenesCompra.jsp">Órdenes de Compra</a></li>
-                                    <!--li><a href="rep.jsp">Reporteador</a></li>
-                                    <!--li><a href="requerimiento.jsp">Carga de Requerimiento</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="medicamento.jsp">Catálogo de Medicamento</a></li>
-                                    <li><a href="catalogo.jsp">Catálogo de Proveedores</a></li>
-                                    <li><a href="marcas.jsp">Catálogo de Marcas</a></li>
-                                    <li><a href="reimpresion.jsp">Reimpresión de Compras</a></li>
-                                    <li><a href="reimp_factura.jsp">Reimpresión de Facturas</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="http://192.168.2.170:8081/UbicacionesConsolidado" target="_blank">Ubicaciones</a></li-->
+                                    <li><a href="factura.jsp">Recibo en Almac&eacute;n</a></li>
+                                    <li><a href="semaforo.jsp">Semaforización</a></li>
                                 </ul>
                             </li>
                             <!--li class="dropdown">
@@ -172,11 +164,12 @@
                             </select>
                         </div>
                         <h4 class="col-sm-1">Fecha</h4>
-                        <div class="col-sm-2">
+                        <div class="col-sm-1">
                             <input type="text" class="form-control" data-date-format="dd/mm/yyyy" id="Fecha" name="Fecha" readonly value="<%=fecEnt%>" onchange="this.form.submit();" />
                         </div>
-                        <a class="btn btn-primary" href="factura.jsp">Todo</a>
+                        <a class="btn btn-primary" href="factura.jsp">Todo</a>&nbsp;<a href="#" class="btn btn-primary" onclick="window.open('reporprovee.jsp', '', 'width=1200,height=800,left=50,top=50,toolbar=no')">Ver Reporte</a>
                         <a class="btn btn-primary" href="factura.jsp"><span class="glyphicon glyphicon-refresh"></span></a>
+                        <a class="btn btn-success" href="gnrFactura.jsp"><span class="glyphicon glyphicon-download"></span></a>
                     </form>
                 </div>
                 <br />
@@ -199,7 +192,7 @@
                                     try {
                                         con.conectar();
                                         try {
-                                            ResultSet rset = con.consulta("SELECT F_ClaDoc, F_FolRemi, F_OrdCom, F_FecApl, F_User, F_NomPro FROM tb_compravista c where F_NomPro like '%" + proveedor + "' and F_FecApl LIKE '%" + fecEnt + "%' GROUP BY F_ClaDoc, F_NomPro;");
+                                            ResultSet rset = con.consulta("SELECT F_ClaDoc, F_FolRemi, F_OrdCom, F_FecApl, F_User, F_NomPro FROM compras c where F_NomPro like '%" + proveedor + "' and F_FecApl LIKE '%" + fecEnt + "%' GROUP BY F_OrdCom, F_FolRemi order by F_ClaDoc;");
                                             while (rset.next()) {
                                 %>
                                 <tr>
@@ -207,12 +200,13 @@
                                     <td><%=rset.getString(1)%></td>
                                     <td><%=rset.getString(2)%></td>
                                     <td><%=rset.getString(3)%></td>
-                                    <td><%=df3.format(df2.parse(rset.getString(4)))%></td>
+                                    <td><%=rset.getString(4)%></td>
                                     <td><%=rset.getString(5)%></td>
                                     <td><%=rset.getString(6)%></td>
                                     <td>
                                         <form action="verCompra.jsp" method="post">
-                                            <input class="hidden" name="fol_gnkl" value="<%=rset.getString(1)%>">
+                                            <input class="hidden" name="F_OrdCom" value="<%=rset.getString(3)%>">
+                                            <input class="hidden" name="F_FolRemi" value="<%=rset.getString(2)%>">
                                             <button class="btn btn-block btn-primary">Ver Compra</button>
                                         </form>
                                     </td>
@@ -255,9 +249,9 @@
 <script src="js/jquery.dataTables.js"></script>
 <script src="js/dataTables.bootstrap.js"></script>
 <script>
-                                $(document).ready(function() {
-                                    $('#datosCompras').dataTable();
-                                });
+                            $(document).ready(function() {
+                                $('#datosCompras').dataTable();
+                            });
 </script>
 <script>
     $(function() {

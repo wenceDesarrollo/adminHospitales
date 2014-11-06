@@ -20,7 +20,7 @@
     } else {
         //response.sendRedirect("index.jsp");
     }
-    ConectionDB_SAA con = new ConectionDB_SAA();
+    ConectionDB_LermaServer con = new ConectionDB_LermaServer();
 
     String fol_gnkl = "", fol_remi = "", orden_compra = "", fecha = "";
     try {
@@ -120,14 +120,14 @@
 
             <div>
                 <h3>Ver Compras</h3>
-                <h4>Folio de Compra: <%=request.getParameter("fol_gnkl")%></h4>
                 <%
                     try {
                         con.conectar();
                         try {
-                            ResultSet rset = con.consulta("SELECT F_NomPro, F_ClaDoc, F_ClaPro, F_DesPro, F_ClaLot, DATE_FORMAT(F_FecCad, '%d/%m/%Y') F_FecCad, F_CanCom, F_Iva, F_Costo, F_ComTot FROM tb_compravista WHERE F_ClaDoc = '" + request.getParameter("fol_gnkl") + "' GROUP BY F_NomPro;");
+                            ResultSet rset = con.consulta("SELECT F_NomPro, F_ClaDoc, F_ClaPro, F_DesPro, F_ClaLot, DATE_FORMAT(F_FecCad, '%d/%m/%Y') F_FecCad, F_CanCom, F_ImpTo, F_Costo, F_ComTot FROM compras WHERE F_OrdCom = '" + request.getParameter("F_OrdCom") + "' and F_FolRemi='" + request.getParameter("F_FolRemi") + "' GROUP BY F_NomPro;");
                             while (rset.next()) {
                 %>
+                <h4>Folio de Compra: <%=rset.getString("F_ClaDoc")%></h4>
                 <h4>Proveedor: <%=rset.getString(1)%></h4>
                 <%
                             }
@@ -140,6 +140,7 @@
                     }
                 %>
                 <div class="text-right">
+                    <a href="gnrVerCompra.jsp?F_OrdCom=<%=request.getParameter("F_OrdCom")%>&F_FolRemi=<%=request.getParameter("F_FolRemi")%>" class="btn btn-success"><span class="glyphicon glyphicon-download"></span></a>
                     <a href="factura.jsp" class="btn btn-default">Regresar</a>
                 </div>
                 <br/>
@@ -163,7 +164,7 @@
                                     try {
                                         con.conectar();
                                         try {
-                                            ResultSet rset = con.consulta("SELECT F_NomPro, F_ClaDoc, F_ClaPro, F_DesPro, F_ClaLot, DATE_FORMAT(F_FecCad, '%d/%m/%Y') F_FecCad, F_CanCom, F_Iva, F_Costo, F_ComTot FROM tb_compravista WHERE F_ClaDoc = '" + request.getParameter("fol_gnkl") + "' GROUP BY F_IdCom;");
+                                            ResultSet rset = con.consulta("SELECT F_NomPro, F_ClaDoc, F_ClaPro, F_DesPro, F_ClaLot, F_FecCad, F_CanCom, F_ImpTo, F_Costo, F_ComTot FROM compras WHERE F_OrdCom = '" + request.getParameter("F_OrdCom") + "' and F_FolRemi='" + request.getParameter("F_FolRemi") + "' GROUP BY F_IdCom;");
                                             while (rset.next()) {
                                 %>
                                 <tr>

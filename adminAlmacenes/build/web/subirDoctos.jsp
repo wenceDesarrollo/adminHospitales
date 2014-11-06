@@ -21,7 +21,7 @@
     } else {
         //response.sendRedirect("index.jsp");
     }
-    ConectionDB con = new ConectionDB();
+    ConectionDB_SAA con = new ConectionDB_SAA();
 %>
 <html>
     <head>
@@ -113,7 +113,7 @@
                 <div class="container">
                     
                     <div class="">
-                        <select class="form-control" name="OC">
+                        <select class="form-control" name="OC" id="OC">
                             <option value="">-Seleccione la OC-</option>
                             <%
                             try{
@@ -189,7 +189,7 @@
                     </div>
                     <div class="modal-body">
                         <form name="form_com" method="post" id="form_com">
-                            <img src='imagenes/loading.gif' width='100px' height='100px' align='center' />
+                            <img src='imagenes/ajax-loader-1.gif' width='15px' height='15px' align='center' />
                             Se están subiendo las imágenes, por favor espere...
                         </form>
                     </div>
@@ -204,6 +204,17 @@
     <script src="js/jquery-1.9.1.js"></script>
     <script src="js/bootstrap.js"></script>
     <script src="js/jquery-ui-1.10.3.custom.js"></script>
-
+    <script>
+        function subidaFotos(){
+            var OC = document.getElementById('OC').value;
+            id (OC===""){
+                alert('Favor de seleccionar la Orden de Compra');
+                return false();
+            }
+            return confirm('Seguro de Cargar las imagenes?');
+            form1.submit();
+        }
+    </script>
+                
 </html>
 
